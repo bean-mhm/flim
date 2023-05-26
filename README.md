@@ -1,4 +1,4 @@
-# flim - Bean's Filmic Transform
+# 🎞️ flim - Bean's Filmic Transform
 
 ## Introduction
 
@@ -81,11 +81,11 @@ colorspaces:
 
 Paying attention to the transforms, you will notice a `ColorSpaceTransform` from CIE-XYZ I-E to Linear BT.709 I-D65. This is because the example OCIO config has its reference color space (the `reference` role) set to CIE-XYZ I-E. If your config already uses Linear BT.709 I-D65 as its reference this is not needed. If your config uses another color space as its reference, you should manually do a conversion to Linear BT.709 I-D65. You can get the conversion matrices using the [Colour](https://www.colour-science.org/) library.
 
-Next, we have an `AllocationTransform`, which can be directly copied from the LUT comments. The `AllocationTransform` here literally just takes the log2 of the tristimulus (RGB) values and maps them from a specified range (the first two values after `vars`) to the [0, 1] range. The third value in `vars` is the offset applied to the values before mapping. This is done to keep the blacks.
+Next, we have an `AllocationTransform` which can be directly copied from the LUT comments. The `AllocationTransform` here takes the log2 of the tristimulus (RGB) values and maps them from a specified range (the first two values after `vars`) to the [0, 1] range. The third value in `vars` is the offset applied to the values before mapping. This is done to keep the blacks.
 
 Finally, a `FileTransform` references the 3D LUT.
 
-Here's an example of how you can add flim as a view transform in an OCIO config:
+Here's an example of how you can add flim as a view transform to an OCIO config:
 
 ```yaml
 displays:
