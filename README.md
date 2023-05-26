@@ -77,7 +77,6 @@ colorspaces:
         - !<RangeTransform> {min_in_value: 0., min_out_value: 0.}
         - !<AllocationTransform> {allocation: lg2, vars: [-11, 11, 0.00048828125]}
         - !<FileTransform> {src: flim.spi3d, interpolation: linear}
-  ...
 ```
 
 1. Paying attention to the transforms, you will notice a `ColorSpaceTransform` from CIE-XYZ I-E to Linear BT.709 I-D65. This is because the example OCIO config has its reference color space (the `reference` role) set to CIE-XYZ I-E. If your config already uses Linear BT.709 I-D65 as its reference this is not needed. If your config uses another color space as its reference, you should manually do a conversion to Linear BT.709 I-D65. You can get the conversion matrices using the [Colour](https://www.colour-science.org/) library.
