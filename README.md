@@ -74,16 +74,19 @@ colorspaces:
     from_scene_reference: !<GroupTransform>
       children:
         - !<ColorSpaceTransform> {src: Linear CIE-XYZ I-E, dst: Linear BT.709 I-D65}
+        - !<RangeTransform> {min_in_value: 0., min_out_value: 0.}
         - !<AllocationTransform> {allocation: lg2, vars: [-11, 11, 0.00048828125]}
         - !<FileTransform> {src: flim.spi3d, interpolation: linear}
   ...
 ```
 
-Paying attention to the transforms, you will notice a `ColorSpaceTransform` from CIE-XYZ I-E to Linear BT.709 I-D65. This is because the example OCIO config has its reference color space (the `reference` role) set to CIE-XYZ I-E. If your config already uses Linear BT.709 I-D65 as its reference this is not needed. If your config uses another color space as its reference, you should manually do a conversion to Linear BT.709 I-D65. You can get the conversion matrices using the [Colour](https://www.colour-science.org/) library.
+1. Paying attention to the transforms, you will notice a `ColorSpaceTransform` from CIE-XYZ I-E to Linear BT.709 I-D65. This is because the example OCIO config has its reference color space (the `reference` role) set to CIE-XYZ I-E. If your config already uses Linear BT.709 I-D65 as its reference this is not needed. If your config uses another color space as its reference, you should manually do a conversion to Linear BT.709 I-D65. You can get the conversion matrices using the [Colour](https://www.colour-science.org/) library.
 
-Next, we have an `AllocationTransform` which can be directly copied from the LUT comments. The `AllocationTransform` here takes the log2 of the tristimulus (RGB) values and maps them from a specified range (the first two values after `vars`) to the [0, 1] range. The third value in `vars` is the offset applied to the values before mapping. This is done to keep the blacks.
+2. Then, we have a `RangeTransform` which is there to eliminate negative values (out-of-gamut).
 
-Finally, a `FileTransform` references the 3D LUT.
+3. Next, we have an `AllocationTransform` which can be directly copied from the LUT comments. The `AllocationTransform` here takes the log2 of the tristimulus (RGB) values and maps them from a specified range (the first two values after `vars`) to the [0, 1] range. The third value in `vars` is the offset applied to the values before mapping. This is done to keep the blacks.
+
+4. Finally, a `FileTransform` references the 3D LUT.
 
 Here's an example of how you can add flim as a view transform to an OCIO config:
 
