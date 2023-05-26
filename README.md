@@ -6,7 +6,11 @@ flim is an experimental film emulation view transform that can be used for displ
 
 ## Eye Candy
 
-See comparisons between flim and other view transforms in the [releases](https://github.com/bean-mhm/flim/releases) section.
+- See comparisons between flim and other view transforms in the [releases](https://github.com/bean-mhm/flim/releases) section.
+
+- You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
+
+- Below are some example images gone through flim v0.2.0.
 
 ## Scripts
 
@@ -97,3 +101,13 @@ displays:
 ```
 
 > `...` refers to the other view transforms in the config. `...` is generally used as a placeholder for the other parts of the code. I can't believe I had to mention this, but a friend was actually confused by it.
+
+## Useful Links
+
+- [The Hitchhiker's Guide to Digital Colour - Troy Sobotka](https://hg2dc.com/)
+- [CG Cinematography - Christophe Brejon](https://chrisbrejon.com/cg-cinematography/)
+- [AgX Config Generator - Troy Sobotka](https://github.com/sobotka/SB2383-Configuration-Generation)
+- [RealBloom, Physically Accurate Bloom Simulation - Me](https://github.com/bean-mhm/realbloom)
+- [Test Image Collection 1 - Troy Sobotka](https://github.com/sobotka/Testing_Imagery)
+- [Test Image Collection 2 - Troy Sobotka](https://github.com/sobotka/images)
+- [PolyHaven, HDRIs](https://polyhaven.com/hdris)
