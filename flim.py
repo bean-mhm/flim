@@ -18,7 +18,8 @@ import joblib
 from utils import *
 
 
-vt_version = '0.2.0'
+vt_name = 'flim'
+vt_version = '0.3.0'
 
 
 # Transform a 3D LUT
@@ -48,7 +49,7 @@ def apply_transform(table: np.ndarray, compress_lg2_min, compress_lg2_max, paral
     table = np.maximum(table, 0.0)
     
     # Pre-Exposure
-    pre_exposure = 0
+    pre_exposure = 1.5
     table *= (2**pre_exposure)
     
     # Apply element-wise transform (calls transform_rgb)
@@ -90,29 +91,30 @@ def run_parallel(table, indices):
     return result
 
 
-extend_mat = flim_gamut_extension_mat(red_scale = 1.05, green_scale = 1.2, blue_scale = 1.05, red_rot = -1.0, green_rot = 0.0, blue_rot = 2.0)
-extend_mat_inv = np.linalg.inv(extend_mat)
-
 # Transform a single RGB triplet
 # This function should only be called by apply_transform.
 def transform_rgb(inp):
+    # Gamut Extension Matrix (Linear BT.709)
+    extend_mat = flim_gamut_extension_mat(red_scale = 1.10, green_scale = 1.15, blue_scale = 1.05, red_rot = 2.0, green_rot = 4.0, blue_rot = 1.0)
+    extend_mat_inv = np.linalg.inv(extend_mat)
+    
     # Convert to extended gamut
     inp = np.matmul(extend_mat, inp)
     
     # Develop Negative
-    inp = flim_rgb_develop(inp, exposure = 6.3, blue_sens = 1.0, green_sens = 1.0, red_sens = 1.0, extend_mat = extend_mat, extend_mat_inv = extend_mat_inv)
+    inp = flim_rgb_develop(inp, exposure = 6.0, blue_sens = 1.0, green_sens = 1.0, red_sens = 1.0, max_density = 10.0)
     
     # Develop Print
-    inp = flim_rgb_develop(inp, exposure = 6.3, blue_sens = 1.0, green_sens = 1.0, red_sens = 1.0, extend_mat = extend_mat, extend_mat_inv = extend_mat_inv)
+    inp = flim_rgb_develop(inp, exposure = 6.0, blue_sens = 1.0, green_sens = 1.0, red_sens = 1.0, max_density = 16.0)
     
     # Convert from extended gamut
     inp = np.matmul(extend_mat_inv, inp)
     
-    # Highlight Tint Fix
-    inp = inp / 0.923979
+    # Highlight Cap
+    inp = inp / 0.796924
     
     # Black Point
-    inp = rgb_uniform_offset(inp, black_point = 2.65, white_point = 0.0)
+    inp = rgb_uniform_offset(inp, black_point = 0.25, white_point = 0.0)
     
     # Clamp
     inp = np.clip(inp, 0, 1)
