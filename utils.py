@@ -255,7 +255,7 @@ def flim_sigmoid(inp, toe, shoulder, transition):
     return lerp(a, b, mix)
 
 
-def flim_dye_mix_factor(mono):
+def flim_dye_mix_factor(mono, max_density):
     # log2 and map range
     fac = map_range_clamp(np.log2(mono + 0.0625), -4.0, 16.0, 0.0, 1.0)
     
@@ -263,7 +263,7 @@ def flim_dye_mix_factor(mono):
     fac = 1.0 - flim_sigmoid(1.0 - fac, toe = 4.0, shoulder = 2.0, transition = 2.0)
     
     # Calculate dye density
-    fac *= 11.0
+    fac *= max_density
     
     # Mix factor
     fac = 2.0 ** (-fac)
@@ -272,14 +272,14 @@ def flim_dye_mix_factor(mono):
     return np.clip(fac, 0, 1)
 
 
-def flim_rgb_color_layer(inp, sensitivity_tone, sensitivity_amount, dye_tone, extend_mat, extend_mat_inv):
+def flim_rgb_color_layer(inp, sensitivity_tone, sensitivity_amount, dye_tone, max_density):
     # Normalize
     sensitivity_tone_norm = sensitivity_tone / rgb_sum(sensitivity_tone)
     dye_tone_norm = dye_tone / rgb_max(dye_tone)
     
     # Dye mix factor
     mono = np.dot(inp, sensitivity_tone_norm) * sensitivity_amount
-    mix = flim_dye_mix_factor(mono)
+    mix = flim_dye_mix_factor(mono, max_density)
     
     # Dye mixing
     out = lerp(dye_tone_norm, white, mix)
@@ -287,18 +287,18 @@ def flim_rgb_color_layer(inp, sensitivity_tone, sensitivity_amount, dye_tone, ex
     return out
 
 
-def flim_rgb_develop(inp, exposure, blue_sens, green_sens, red_sens, extend_mat, extend_mat_inv):
+def flim_rgb_develop(inp, exposure, blue_sens, green_sens, red_sens, max_density):
     # Exposure
     inp = inp * 2**exposure
     
     # Blue-sensitive layer
-    out = flim_rgb_color_layer(inp, blue, blue_sens, yellow, extend_mat, extend_mat_inv)
+    out = flim_rgb_color_layer(inp, blue, blue_sens, yellow, max_density)
     
     # Green-sensitive layer
-    out *= flim_rgb_color_layer(inp, green, green_sens, magenta, extend_mat, extend_mat_inv)
+    out *= flim_rgb_color_layer(inp, green, green_sens, magenta, max_density)
     
     # Red-sensitive layer
-    out *= flim_rgb_color_layer(inp, red, red_sens, cyan, extend_mat, extend_mat_inv)
+    out *= flim_rgb_color_layer(inp, red, red_sens, cyan, max_density)
     
     # Filter sensitivty tint
     out *= np.array([red_sens, green_sens, blue_sens])
