@@ -10,7 +10,7 @@ flim is an experimental film emulation view transform that can be used for displ
 
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
-- Below are some example images gone through flim v0.2.0.
+- ~~Below are some example images gone through flim v0.3.0.~~
 
 ## Scripts
 
