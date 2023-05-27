@@ -13,13 +13,13 @@ import colour
 import os
 import time
 
-from flim import apply_transform, vt_version
+from flim import apply_transform, vt_name, vt_version
 
 
 # Parameters
 
 compress_lg2_min = -11
-compress_lg2_max = 11
+compress_lg2_max = 12
 
 parallel_processing = True
 
@@ -46,6 +46,7 @@ lut_comments = [
 
 
 # Print the parameters
+print(f'{vt_name = }')
 print(f'{vt_version = }')
 print(f'{compress_lg2_min = }')
 print(f'{compress_lg2_max = }')
@@ -61,7 +62,7 @@ t_start = time.time()
 print('Making a linear 3D LUT...')
 lut = colour.LUT3D(
     table = colour.LUT3D.linear_table(lut_dims),
-    name = 'flim',
+    name = vt_name,
     domain = np.array([[0, 0, 0], [1, 1, 1]]),
     size = lut_dims,
     comments = lut_comments
@@ -77,7 +78,7 @@ script_dir = os.path.realpath(os.path.dirname(__file__))
 colour.write_LUT(
     LUT = lut,
     path = f"{script_dir}/{lut_filename}.spi3d",
-    decimals = 6,
+    decimals = 5,
     method = 'Sony SPI3D'
 )
 
