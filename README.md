@@ -2,7 +2,11 @@
 
 ## Introduction
 
-flim is an experimental film emulation view transform that can be used for displaying digital open-domain (HDR) images, preferably in an [OpenColorIO](https://opencolorio.org/) environment.
+flim is an experimental film emulation transform that can be used for:
+
+1. Displaying Digital Open-Domain (HDR) Images
+2. Color Grading
+3. Post-Processing in Games ("tone-mapping")
 
 ## Eye Candy
 
@@ -58,9 +62,7 @@ First, a few notes:
 
 If `main.py` runs successfully, you should see a file named `flim.spi3d` in the same directory. Alternatively, you can look up the latest LUT - no pun intended - in the [releases](https://github.com/bean-mhm/flim/releases) section, which may be outdated.
 
-The LUT's expected input and output formats are mentioned in the LUT comments at end of the file, but they can also be seen in the code.
-
-Here's an example of the LUT comments (note that this might not match the latest version):
+The LUT's expected input and output formats are mentioned in the LUT comments at end of the file. The following is an example of the LUT comments (note that this might not match the latest version).
 
 ```
 # -------------------------------------------------
@@ -105,9 +107,9 @@ colorspaces:
 
 1. Paying attention to the transforms, you will notice a `ColorSpaceTransform` from `Linear CIE-XYZ I-E` to `Linear BT.709 I-D65`. This is because the example OCIO config has its reference color space (the `reference` role) set to `Linear CIE-XYZ I-E`. If your config already uses `Linear BT.709 I-D65` (Linear Rec.709) as its reference this is not needed. If your config uses another color space as its reference, you should manually do a conversion to `Linear BT.709 I-D65`. You can get the conversion matrices using the [Colour](https://www.colour-science.org/) library.
 
-2. Then, we have a `RangeTransform` which is there to eliminate negative values (out-of-gamut). This is not the best approach as it will cause weird transitions in images that have a lot of negative values, but it is what flim uses for now.
+2. Then, we have a `RangeTransform` which is there to eliminate negative values in out-of-gamut triplets. This is not the best approach as it might cause weird transitions in images that have been converted from a wider gamut and have a lot of negative values.
 
-3. Next, we have an `AllocationTransform` which can be directly copied from the LUT comments. The `AllocationTransform` here takes the log2 of the tristimulus (RGB) values and maps them from a specified range (the first two values after `vars`) to the [0, 1] range. The third value in `vars` is the offset applied to the values before mapping. This is done to keep the blacks.
+3. Next, we have an `AllocationTransform` which can be directly copied from the LUT comments. The `AllocationTransform` here takes the log2 of the tristimulus (RGB) values and maps them from the specified range (the first two values after `vars`) to the [0, 1] range. The third value in `vars` is the initial offset applied to the values. This is done to keep the blacks.
 
 4. Finally, a `FileTransform` references the 3D LUT.
 
@@ -124,10 +126,10 @@ displays:
 
 ### Non-OCIO Guide
 
-You can replicate the transforms farily easily in order to use flim's 3D LUT in your own pipeline without using OCIO. The following pseudo-code demonstrates the general process (note that this might not match the latest version).
+You can replicate the transforms farily easily in order to use flim's 3D LUT in your own pipeline without using OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
 
 ```py
-# col contains the RGB values in Linear BT.709 I-D65
+# col contains the input RGB values (color space: Linear BT.709 I-D65)
 col = np.array([4.2, 0.23, 0.05])
 
 # RangeTransform
@@ -139,7 +141,7 @@ col += 0.00048828125  # offset by 2 to the power of -11 (lower bound after log2)
 col = np.log2(col)
 col = map_range(col, from=[-11, 12], to=[0, 1], clamp=True)
 
-# out will be the final output in sRGB 2.2
+# Sample from the 3D LUT (output color space: sRGB 2.2)
 out = lut.sample(TRILINEAR, col)
 ```
 
