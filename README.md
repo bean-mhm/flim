@@ -6,7 +6,7 @@ flim is an experimental film emulation transform that can be used for:
 
 1. Displaying Digital Open-Domain (HDR) Images
 2. Color Grading
-3. Post-Processing in Games ("tone-mapping")
+3. Post-Processing in Video Games and Shaders ("tone-mapping")
 
 ## Eye Candy
 
