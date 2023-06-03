@@ -129,7 +129,7 @@ displays:
 You can replicate the transforms farily easily in order to use flim's 3D LUT in your own pipeline without using OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
 
 ```py
-# col contains the input RGB values (color space: Linear BT.709 I-D65)
+# Input RGB values (color space: Linear BT.709 I-D65)
 col = np.array([4.2, 0.23, 0.05])
 
 # RangeTransform
@@ -151,8 +151,8 @@ out = lut.sample(TRILINEAR, col)
 
 - [The Hitchhiker's Guide to Digital Colour - Troy Sobotka](https://hg2dc.com/)
 - [CG Cinematography - Christophe Brejon](https://chrisbrejon.com/cg-cinematography/)
-- [AgX Config Generator - Troy Sobotka](https://github.com/sobotka/SB2383-Configuration-Generation)
 - [RealBloom, Physically Accurate Bloom Simulation - Me](https://github.com/bean-mhm/realbloom)
+- [AgX Config Generator - Troy Sobotka](https://github.com/sobotka/SB2383-Configuration-Generation)
 - [Test Image Collection 1 - Troy Sobotka](https://github.com/sobotka/Testing_Imagery)
 - [Test Image Collection 2 - Troy Sobotka](https://github.com/sobotka/images)
 - [PolyHaven, HDRIs](https://polyhaven.com/hdris)
