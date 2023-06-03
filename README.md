@@ -51,7 +51,7 @@ Here are the external libraries required to run the scripts:
 
 First, a few notes:
 
- - flim's 3D LUT is designed to be used in an [OpenColorIO](https://opencolorio.org/) environment, but depending on your software and environment, you might be able to manually replicate the transforms in your custom pipeline.
+ - flim's 3D LUT is designed to be used in an [OpenColorIO](https://opencolorio.org/) (OCIO) environment, but depending on your software and environment, you might be able to manually replicate the transforms in your custom pipeline.
  
  - flim only supports the sRGB display format as of now.
 
@@ -64,7 +64,7 @@ Here's an example of the LUT comments (note that this might not match the latest
 ```
 # -------------------------------------------------
 # 
-# flim v0.4.0 - Bean's Filmic Transform
+# flim v0.5.0 - Bean's Filmic Transform
 # 
 # LUT input is expected to be in Linear BT.709 I-D65 and gone through an AllocationTransform like the following:
 # !<AllocationTransform> {allocation: lg2, vars: [-11, 12, 0.00048828125]}
@@ -79,6 +79,8 @@ Here's an example of the LUT comments (note that this might not match the latest
 # 
 # -------------------------------------------------
 ```
+
+### OCIO Example
 
 Here's an example of how you can add flim to an OCIO config:
 
@@ -118,6 +120,27 @@ displays:
 ```
 
 > `...` refers to the other view transforms in the config. `...` is generally used as a placeholder for the other parts of the code. I can't believe I had to mention this, but a friend was actually confused by it.
+
+### Non-OCIO Guide
+
+You can replicate the transforms farily easily in order to use flim's 3D LUT in your own pipeline without using OCIO. The following pseudo-code demonstrates the general process (note that this might not match the latest version).
+
+```py
+# col contains the RGB values in Linear BT.709 I-D65
+col = np.array([4.2, 0.23, 0.05])
+
+# RangeTransform
+# (clip negative values, or use a custom gamut compression algorithm)
+col = np.maximum(col, 0.0)
+
+# AllocationTransform
+col += 0.00048828125  # offset by 2 to the power of -11 (lower bound after log2)
+col = np.log2(col)
+col = map_range(col, from=[-11, 12], to=[0, 1], clamp=True)
+
+# out will be the final output in sRGB 2.2
+out = lut.sample(TRILINEAR, col)
+```
 
 ## Useful Links
 
