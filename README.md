@@ -29,6 +29,7 @@ flim is an experimental film emulation view transform that can be used for displ
 ![56 - out_sweep - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/a37dea51-514b-41c9-b273-fc8990ce3454)
 
 
+
 ## Scripts
 
 The code is structured in the following way:
@@ -141,6 +142,8 @@ col = map_range(col, from=[-11, 12], to=[0, 1], clamp=True)
 # out will be the final output in sRGB 2.2
 out = lut.sample(TRILINEAR, col)
 ```
+
+![3D LUT Visualization](images/3d_lut_vis.png)
 
 ## Useful Links
 
