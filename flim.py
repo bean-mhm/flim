@@ -19,7 +19,7 @@ from utils import *
 
 
 vt_name = 'flim'
-vt_version = '0.6.0'
+vt_version = '0.6.1'
 
 # Use parallel processing?
 parallel = True

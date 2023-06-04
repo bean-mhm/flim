@@ -101,7 +101,7 @@ for preset in presets_to_compile:
         f"  - !<ColorSpace>\n" \
         f"    name: {ocio_view_name}\n" \
         f"    family: Image Formation\n" \
-        f"    equalitygroup: ""\n" \
+        f"    equalitygroup: \"\"\n" \
         f"    bitdepth: unknown\n" \
         f"    description: {vt_name} v{vt_version} - https://github.com/bean-mhm/flim\n" \
         f"    isdata: false\n" \
@@ -114,7 +114,8 @@ for preset in presets_to_compile:
         f"        - !<FileTransform> {{src: {lut_name}.spi3d, interpolation: linear}}\n" \
         f"```\n" \
         f"Explanation:\n" \
-        f"  1. ColorSpaceTransform converts the input from scene reference to Linear BT.709 I-D65 (Rec.709).\n" \
+        f"  1. ColorSpaceTransform converts the input from the scene reference to Linear BT.709 I-D65. If this is named\n" \
+        f"     differently in your config (for example Linear Rec.709), change the name manually.\n" \
         f"  2. RangeTransform clips negative values. You might want to use a gamut compression algorithm before this step.\n" \
         f"  3. AllocationTransform is for LUT compression, it takes the log2 of the RGB values, then maps them from a\n" \
         f"     specified range (the first two values after 'vars') to [0,1]. The third value is the offset applied to the\n" \
