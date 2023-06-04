@@ -2,11 +2,15 @@
 
 ## Introduction
 
-flim is an experimental film emulation transform that can be used for:
+**flim is an experimental film emulation transform** that can be used for:
 
 1. Displaying Digital Open-Domain (HDR) Images
 2. Color Grading
 3. Post-Processing in Video Games and Shaders ("tone-mapping")
+
+flim comes with 2 presets, but you can add your own presets with their custom parameters!
+  - **default**: The default preset provides a generic look that works well on most images.
+  - **gold**: Gives a tastier, more dramatic look.
 
 ## Eye Candy
 
@@ -62,7 +66,7 @@ First, a few notes:
  
  - flim only supports the sRGB display format as of now.
 
-If `main.py` runs successfully, you should see files named like `flim_X.spi3d` in the same directory. Alternatively, you can look up the latest LUTs in the [releases](https://github.com/bean-mhm/flim/releases) section, which may be outdated.
+If `main.py` runs successfully, you should see files named like `flim_X.spi3d` in the same directory. Alternatively, you can look up the latest LUTs in the [releases](https://github.com/bean-mhm/flim/releases) section.
 
 The LUT comments contain most of the information you need. The following is an example of the LUT comments (note that this might not match the latest version).
 
@@ -136,7 +140,7 @@ You can replicate the transforms farily easily in order to use flim's 3D LUTs in
 col = np.array([4.2, 0.23, 0.05])
 
 # RangeTransform
-# Clip negative values, or use a custom gamut compression algorithm.
+# Clip negative values, or use a gamut compression algorithm.
 col = np.maximum(col, 0.0)
 
 # AllocationTransform
