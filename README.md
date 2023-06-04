@@ -18,23 +18,25 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
 
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
-- Below are some example images gone through flim v0.5.0.
+- Below are some example images gone through flim's gold preset (v0.6.1).
 
-![10 - SRIC_arri_alexa35 01017 - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/1baf7c23-d089-455a-9717-85fe3502d8ec)
+![12 - SRIC_arri_alexa35 01025 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/37ed3fb6-aaac-413f-835c-55ef3c65bdcc)
 
-![13 - SRIC_arri_alexa35 01033 - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/abf1b5c3-bac6-4ab0-a6ae-e6ca36b83655)
+![13 - SRIC_arri_alexa35 01033 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/30cf9cf9-e26d-463a-be9e-451290673795)
 
-![25 - SRIC_hdm-vmlab-hdr 01032 - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/f5a32d32-2200-49fd-a9e4-bf8957c1e5d2)
+![17 - SRIC_arri_alexa35 01037 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/6a468503-3081-42ca-98de-6cfb3651f540)
 
-![26 - SRIC_hdm-vmlab-hdr 01033 - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/21073d84-43e6-479d-a35c-cef1d95daed4)
+![19 - SRIC_hdm-vmlab-hdr 01005 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/d5605dfc-60f6-42d6-b4d1-81a6455082aa)
 
-![34 - SRIC_red 01006 - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/0d0ca4b9-84a7-4bd5-8545-84d7d1b730f5)
+![25 - SRIC_hdm-vmlab-hdr 01032 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/89592952-3cfa-4008-baa3-71766092fd0f)
 
-![38 - courtyard_night_4k - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/af6e275b-9cde-4584-960c-34bf54f1ed9b)
+![31 - SRIC_red 01004 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/942286f9-c399-4393-86f7-b7fd9b02876b)
 
-![42 - pretville_street_4k - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/a047503f-e3da-446b-b69e-f0422fee7587)
+![34 - SRIC_red 01006 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/45efbbc2-f842-404c-b23c-5630de831c69)
 
-![56 - out_sweep - 2 flim](https://github.com/bean-mhm/flim/assets/98428255/a37dea51-514b-41c9-b273-fc8990ce3454)
+![42 - pretville_street_4k - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/991877ce-a9b8-47b9-a296-3eecf1275f3b)
+
+![54 - lakeside_2k - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/d0e6302c-b0d6-41b6-9b41-1fb755b4997a)
 
 
 
@@ -48,7 +50,7 @@ The code is structured in the following way:
 | flim.py | Transforms a given linear 3D LUT table | utils.py |
 | utils.py | Contains helper functions | - |
 
-You can add new custom presets in `main.py`, or play with the film emulation chain in `flim.py`.
+You can add new presets in `main.py`, or play with the film emulation chain in `flim.py`.
 
 Here are the external libraries required to run the scripts:
 
@@ -133,7 +135,7 @@ displays:
 
 ### Non-OCIO Guide
 
-You can replicate the transforms farily easily in order to use flim's 3D LUTs in your own pipeline without using OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
+You can replicate the transforms farily easily in order to use flim's 3D LUTs in your own pipeline without OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
 
 ```py
 # Input RGB values (color space: Linear BT.709 I-D65)
