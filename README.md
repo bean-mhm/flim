@@ -2,15 +2,19 @@
 
 ## Introduction
 
-flim is an experimental film emulation transform that can be used for:
+**flim is an experimental film emulation transform** that can be used for:
 
 1. Displaying Digital Open-Domain (HDR) Images
 2. Color Grading
 3. Post-Processing in Video Games and Shaders ("tone-mapping")
 
+flim comes with 2 presets, but you can add your own presets with their custom parameters!
+  - **default**: The default preset provides a generic look that works well on most images.
+  - **gold**: Gives a tastier, more dramatic look.
+
 ## Eye Candy
 
-- See comparisons between flim and other view transforms in the [releases](https://github.com/bean-mhm/flim/releases) section.
+- See comparisons between native sRGB, AgX, and flim's presets in the [releases](https://github.com/bean-mhm/flim/releases) section.
 
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
@@ -40,9 +44,11 @@ The code is structured in the following way:
 
 | Script | Role | Uses |
 |---|---|---|
-| main.py | Generates a 3D LUT for flim | flim.py  |
+| main.py | Compiles 3D LUTs for flim | flim.py  |
 | flim.py | Transforms a given linear 3D LUT table | utils.py |
 | utils.py | Contains helper functions | - |
+
+You can add new custom presets in `main.py`, or play with the film emulation chain in `flim.py`.
 
 Here are the external libraries required to run the scripts:
 
@@ -52,27 +58,69 @@ Here are the external libraries required to run the scripts:
  
  - [Joblib](https://joblib.readthedocs.io/en/latest)
 
-## Using the LUT
+## Using the LUTs
 
 First, a few notes:
 
- - flim's 3D LUT is designed to be used in an [OpenColorIO](https://opencolorio.org/) (OCIO) environment, but depending on your software and environment, you might be able to manually replicate the transforms in your custom pipeline.
+ - flim's 3D LUTs are designed to be used in an [OpenColorIO](https://opencolorio.org/) (OCIO) environment, but depending on your software and environment, you might be able to manually replicate the transforms in your custom pipeline ([See Non-OCIO Guide below](#non-ocio-guide)).
  
  - flim only supports the sRGB display format as of now.
 
-If `main.py` runs successfully, you should see a file named `flim.spi3d` in the same directory. Alternatively, you can look up the latest LUT - no pun intended - in the [releases](https://github.com/bean-mhm/flim/releases) section, which may be outdated.
+If `main.py` runs successfully, you should see files named like `flim_X.spi3d` in the same directory. Alternatively, you can look up the latest LUTs in the [releases](https://github.com/bean-mhm/flim/releases) section.
 
-The LUT's expected input and output formats are mentioned in the LUT comments at end of the file. The following is an example of the LUT comments (note that this might not match the latest version).
+The LUT comments contain most of the information you need. The following is an example of the LUT comments (note that this might not match the latest version).
 
 ```
 # -------------------------------------------------
 # 
-# flim v0.5.0 - Bean's Filmic Transform
+# flim v0.6.1 - Bean's Filmic Transform
+# 
+# Preset: default
+# URL: None
 # 
 # LUT input is expected to be in Linear BT.709 I-D65 and gone through an AllocationTransform like the following:
 # !<AllocationTransform> {allocation: lg2, vars: [-11, 12, 0.00048828125]}
 # 
 # Output will be in sRGB 2.2.
+# 
+# Here's how you can add this to an OpenColorIO config:
+```
+```yaml
+colorspaces:
+  - !<ColorSpace>
+    name: flim (default)
+    family: Image Formation
+    equalitygroup: ""
+    bitdepth: unknown
+    description: flim v0.6.1 - https://github.com/bean-mhm/flim
+    isdata: false
+    allocation: uniform
+    from_scene_reference: !<GroupTransform>
+      children:
+        - !<ColorSpaceTransform> {src: reference, dst: Linear BT.709 I-D65}
+        - !<RangeTransform> {min_in_value: 0., min_out_value: 0.}
+        - !<AllocationTransform> {allocation: lg2, vars: [-11, 12, 0.00048828125]}
+        - !<FileTransform> {src: flim_default.spi3d, interpolation: linear}
+```
+```
+# Explanation:
+#   1. ColorSpaceTransform converts the input from the scene reference to Linear BT.709 I-D65. If this is named
+#      differently in your config (for example Linear Rec.709), change the name manually.
+#   2. RangeTransform clips negative values. You might want to use a gamut compression algorithm before this step.
+#   3. AllocationTransform is for LUT compression, it takes the log2 of the RGB values and maps them from a
+#      specified range (the first two values after 'vars') to [0, 1]. The third value is the offset applied to the
+#      values before log2. This is done to keep the blacks.
+#   4. Lastly, the FileTransform references the 3D LUT and defines a trilinear interpolation method.
+# 
+# Adding this as a view transform is pretty straightforward:
+```
+```yaml
+displays:
+  sRGB:
+    - !<View> {name: flim (default), colorspace: flim (default)}
+    ... (other view transforms here)
+```
+```
 # 
 # Repo:
 # https://github.com/bean-mhm/flim
@@ -83,57 +131,16 @@ The LUT's expected input and output formats are mentioned in the LUT comments at
 # -------------------------------------------------
 ```
 
-### OCIO Example
-
-Here's an example of how you can add flim to an OCIO config:
-
-```yaml
-colorspaces:
-  - !<ColorSpace>
-    name: flim
-    family: Image Formation
-    equalitygroup: ""
-    bitdepth: unknown
-    description: flim - Bean's Filmic Transform
-    isdata: false
-    allocation: uniform
-    from_scene_reference: !<GroupTransform>
-      children:
-        - !<ColorSpaceTransform> {src: Linear CIE-XYZ I-E, dst: Linear BT.709 I-D65}
-        - !<RangeTransform> {min_in_value: 0., min_out_value: 0.}
-        - !<AllocationTransform> {allocation: lg2, vars: [-11, 12, 0.00048828125]}
-        - !<FileTransform> {src: flim.spi3d, interpolation: linear}
-```
-
-1. Paying attention to the transforms, you will notice a `ColorSpaceTransform` from `Linear CIE-XYZ I-E` to `Linear BT.709 I-D65`. This is because the example OCIO config has its reference color space (the `reference` role) set to `Linear CIE-XYZ I-E`. If your config already uses `Linear BT.709 I-D65` (Linear Rec.709) as its reference this is not needed. If your config uses another color space as its reference, you should manually do a conversion to `Linear BT.709 I-D65`. You can get the conversion matrices using the [Colour](https://www.colour-science.org/) library.
-
-2. Then, we have a `RangeTransform` which is there to eliminate negative values in out-of-gamut triplets. This is not the best approach as it might cause weird transitions in images that have been converted from a wider gamut and have a lot of negative values.
-
-3. Next, we have an `AllocationTransform` which can be directly copied from the LUT comments. The `AllocationTransform` here takes the log2 of the tristimulus (RGB) values and maps them from the specified range (the first two values after `vars`) to the [0, 1] range. The third value in `vars` is the initial offset applied to the values. This is done to keep the blacks.
-
-4. Finally, a `FileTransform` references the 3D LUT.
-
-Here's an example of how you can add flim as a view transform to an OCIO config:
-
-```yaml
-displays:
-  sRGB:
-    - !<View> {name: flim, colorspace: flim}
-    ...
-```
-
-> `...` refers to the other view transforms in the config. `...` is generally used as a placeholder for the other parts of the code. I can't believe I had to mention this, but a friend was actually confused by it.
-
 ### Non-OCIO Guide
 
-You can replicate the transforms farily easily in order to use flim's 3D LUT in your own pipeline without using OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
+You can replicate the transforms farily easily in order to use flim's 3D LUTs in your own pipeline without using OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
 
 ```py
 # Input RGB values (color space: Linear BT.709 I-D65)
 col = np.array([4.2, 0.23, 0.05])
 
 # RangeTransform
-# (clip negative values, or use a custom gamut compression algorithm)
+# Clip negative values, or use a gamut compression algorithm.
 col = np.maximum(col, 0.0)
 
 # AllocationTransform
