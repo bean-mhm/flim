@@ -1,5 +1,5 @@
 ocio/
-flim.spi3d
+*.spi3d
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
