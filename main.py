@@ -117,8 +117,8 @@ for preset in presets_to_compile:
         f"  1. ColorSpaceTransform converts the input from the scene reference to Linear BT.709 I-D65. If this is named\n" \
         f"     differently in your config (for example Linear Rec.709), change the name manually.\n" \
         f"  2. RangeTransform clips negative values. You might want to use a gamut compression algorithm before this step.\n" \
-        f"  3. AllocationTransform is for LUT compression, it takes the log2 of the RGB values, then maps them from a\n" \
-        f"     specified range (the first two values after 'vars') to [0,1]. The third value is the offset applied to the\n" \
+        f"  3. AllocationTransform is for LUT compression, it takes the log2 of the RGB values and maps them from a\n" \
+        f"     specified range (the first two values after 'vars') to [0, 1]. The third value is the offset applied to the\n" \
         f"     values before log2. This is done to keep the blacks.\n" \
         f"  4. Lastly, the FileTransform references the 3D LUT and defines a trilinear interpolation method.\n" \
         f"\n" \
