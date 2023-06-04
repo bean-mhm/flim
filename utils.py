@@ -260,7 +260,7 @@ def flim_dye_mix_factor(mono, max_density):
     fac = map_range_clamp(np.log2(mono + 0.0625), -4.0, 16.0, 0.0, 1.0)
     
     # Calculate exposure
-    fac = 1.0 - flim_sigmoid(1.0 - fac, toe = 4.0, shoulder = 2.0, transition = 2.0)
+    fac = 1.0 - flim_sigmoid(1.0 - fac, toe=4.0, shoulder=2.0, transition=2.0)
     
     # Calculate dye density
     fac *= max_density
@@ -306,18 +306,20 @@ def flim_rgb_develop(inp, exposure, blue_sens, green_sens, red_sens, max_density
     return out
 
 
-def flim_gamut_extension_mat_row(primary_hue, scale, rotate):
+def flim_gamut_extension_mat_row(primary_hue, scale, rotate, mul):
     out = blender_hsv_to_rgb(np.array([
         wrap(primary_hue + (rotate / 360.0), 0.0, 1.0),
         1.0 / scale,
         1.0]))
     
-    return out / rgb_sum(out)
+    out /= rgb_sum(out)
+    out *= mul
+    return out
 
 
-def flim_gamut_extension_mat(red_scale, green_scale, blue_scale, red_rot, green_rot, blue_rot):
+def flim_gamut_extension_mat(red_scale, green_scale, blue_scale, red_rot, green_rot, blue_rot, red_mul, green_mul, blue_mul):
     return np.array([
-        flim_gamut_extension_mat_row(0.0, red_scale, red_rot),
-        flim_gamut_extension_mat_row(1.0 / 3.0, green_scale, green_rot),
-        flim_gamut_extension_mat_row(2.0 / 3.0, blue_scale, blue_rot)
+        flim_gamut_extension_mat_row(0.0, red_scale, red_rot, red_mul),
+        flim_gamut_extension_mat_row(1.0 / 3.0, green_scale, green_rot, green_mul),
+        flim_gamut_extension_mat_row(2.0 / 3.0, blue_scale, blue_rot, blue_mul)
     ])
