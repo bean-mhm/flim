@@ -20,6 +20,7 @@ from flim import apply_transform, vt_name, vt_version
 
 preset_default = {
     'name': 'default',
+    'info_url': None,
     
     'lut_compress_log2_min': -11,
     'lut_compress_log2_max': +12,
@@ -52,6 +53,7 @@ preset_default = {
 
 preset_gold = {
     'name': 'gold',
+    'info_url': None,
     
     'lut_compress_log2_min': -10,
     'lut_compress_log2_max': +10,
@@ -87,20 +89,60 @@ presets_to_compile = [preset_default, preset_gold]
 
 # Compile the presets to 3D LUT files
 for preset in presets_to_compile:
-    print(f'Compiling preset: "{preset["name"]}"')
-
+    preset['name'] = preset['name'].strip().replace(' ', '_')
     lut_name = f'flim_{preset["name"]}'
+    
+    ocio_view_name = f"flim ({preset['name']})"
+    ocio_allocation_vars = f'vars: [{preset["lut_compress_log2_min"]}, {preset["lut_compress_log2_max"]}, {2**preset["lut_compress_log2_min"]}]'
+    ocio_guide_comments = \
+        f"Here's how you can add this to an OpenColorIO config:\n" \
+        f"```yaml\n" \
+        f"colorspaces:\n" \
+        f"  - !<ColorSpace>\n" \
+        f"    name: {ocio_view_name}\n" \
+        f"    family: Image Formation\n" \
+        f"    equalitygroup: ""\n" \
+        f"    bitdepth: unknown\n" \
+        f"    description: {vt_name} v{vt_version} - https://github.com/bean-mhm/flim\n" \
+        f"    isdata: false\n" \
+        f"    allocation: uniform\n" \
+        f"    from_scene_reference: !<GroupTransform>\n" \
+        f"      children:\n" \
+        f"        - !<ColorSpaceTransform> {{src: reference, dst: Linear BT.709 I-D65}}\n" \
+        f"        - !<RangeTransform> {{min_in_value: 0., min_out_value: 0.}}\n" \
+        f"        - !<AllocationTransform> {{allocation: lg2, {ocio_allocation_vars}}}\n" \
+        f"        - !<FileTransform> {{src: {lut_name}.spi3d, interpolation: linear}}\n" \
+        f"```\n" \
+        f"Explanation:\n" \
+        f"  1. ColorSpaceTransform converts the input from scene reference to Linear BT.709 I-D65 (Rec.709).\n" \
+        f"  2. RangeTransform clips negative values. You might want to use a gamut compression algorithm before this step.\n" \
+        f"  3. AllocationTransform is for LUT compression, it takes the log2 of the RGB values, then maps them from a\n" \
+        f"     specified range (the first two values after 'vars') to [0,1]. The third value is the offset applied to the\n" \
+        f"     values before log2. This is done to keep the blacks.\n" \
+        f"  4. Lastly, the FileTransform references the 3D LUT and defines a trilinear interpolation method.\n" \
+        f"\n" \
+        f"Adding this as a view transform is pretty straightforward:\n" \
+        f"```yaml\n" \
+        f"displays:\n" \
+        f"  sRGB:\n" \
+        f"    - !<View> {{name: {ocio_view_name}, colorspace: {ocio_view_name}}}\n" \
+        f"    ... (other view transforms here)\n" \
+        f"```"
+
     lut_comments = [
         '-------------------------------------------------',
         '',
-        f'flim v{vt_version} - Bean\'s Filmic Transform',
+        f'{vt_name} v{vt_version} - Bean\'s Filmic Transform',
         '',
         f'Preset: {preset["name"]}',
+        f'URL: {preset["info_url"]}',
         '',
         'LUT input is expected to be in Linear BT.709 I-D65 and gone through an AllocationTransform like the following:',
-        f'!<AllocationTransform> {{allocation: lg2, vars: [{preset["lut_compress_log2_min"]}, {preset["lut_compress_log2_max"]}, {2**preset["lut_compress_log2_min"]}]}}',
+        f'!<AllocationTransform> {{allocation: lg2, {ocio_allocation_vars}}}',
         '',
         'Output will be in sRGB 2.2.',
+        ''] + \
+        ocio_guide_comments.splitlines() + [\
         '',
         'Repo:',
         'https://github.com/bean-mhm/flim',
@@ -110,6 +152,8 @@ for preset in presets_to_compile:
         '',
         '-------------------------------------------------'
     ]
+    
+    print(f'Compiling preset "{preset["name"]}"')
     
     t_start = time.time()
     
@@ -139,4 +183,4 @@ for preset in presets_to_compile:
 
     t_end = time.time()
     
-    print(f'Preset compiled: "{preset["name"]}" ({t_end - t_start:.1f} s)\n')
+    print(f'Preset "{preset["name"]}" compiled in {t_end - t_start:.1f} s.\n')
