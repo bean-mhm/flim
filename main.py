@@ -16,72 +16,127 @@ import time
 from flim import apply_transform, vt_name, vt_version
 
 
-# Parameters
+# Presets
 
-compress_lg2_min = -11
-compress_lg2_max = 12
+preset_default = {
+    'name': 'default',
+    
+    'lut_compress_log2_min': -11,
+    'lut_compress_log2_max': +12,
+    'lut_quantize': 80,
+    
+    'pre_exposure': 0.95,
+    
+    'extended_gamut_red_scale': 1.05,
+    'extended_gamut_green_scale': 1.12,
+    'extended_gamut_blue_scale': 1.045,
+    'extended_gamut_red_rot': 0.5,
+    'extended_gamut_green_rot': 2.0,
+    'extended_gamut_blue_rot': 0.0,
+    'extended_gamut_red_mul': 1.0,
+    'extended_gamut_green_mul': 1.0,
+    'extended_gamut_blue_mul': 1.0,
+    
+    'negative_film_exposure': 5.3,
+    'negative_film_density': 10.0,
+    
+    'print_backlight': np.array([1.0, 1.0, 1.0]),
+    'print_film_exposure': 5.3,
+    'print_film_density': 13.3,
+    
+    'highlight_cap': np.array([0.91, 0.91, 0.91]),
+    'black_point': 1.47,
+    'white_point': 0.0,
+    'midtone_saturation': 1.02
+}
 
-parallel_processing = True
+preset_gold = {
+    'name': 'gold',
+    
+    'lut_compress_log2_min': -10,
+    'lut_compress_log2_max': +10,
+    'lut_quantize': 80,
+    
+    'pre_exposure': 3.3,
+    
+    'extended_gamut_red_scale': 1.05,
+    'extended_gamut_green_scale': 1.12,
+    'extended_gamut_blue_scale': 1.045,
+    'extended_gamut_red_rot': 0.5,
+    'extended_gamut_green_rot': 1.0,
+    'extended_gamut_blue_rot': 0.0,
+    'extended_gamut_red_mul': 1.0,
+    'extended_gamut_green_mul': 1.0,
+    'extended_gamut_blue_mul': 1.2,
+    
+    'negative_film_exposure': 2.3,
+    'negative_film_density': 8.2,
+    
+    'print_backlight': np.array([1.1, 0.99, 1.04828]),
+    'print_film_exposure': 2.3,
+    'print_film_density': 26.0,
+    
+    'highlight_cap': np.array([0.97, 0.97, 0.97]),
+    'black_point': 0.0,
+    'white_point': 0.0,
+    'midtone_saturation': 1.0
+}
 
-lut_dims = 80
-lut_filename = 'flim'
-lut_comments = [
-    '-------------------------------------------------',
-    '',
-    f'flim v{vt_version} - Bean\'s Filmic Transform',
-    '',
-    'LUT input is expected to be in Linear BT.709 I-D65 and gone through an AllocationTransform like the following:',
-    f'!<AllocationTransform> {{allocation: lg2, vars: [{compress_lg2_min}, {compress_lg2_max}, {2**compress_lg2_min}]}}',
-    '',
-    'Output will be in sRGB 2.2.',
-    '',
-    'Repo:',
-    'https://github.com/bean-mhm/flim',
-    '',
-    'Read more:',
-    'https://opencolorio.readthedocs.io/en/latest/guides/authoring/authoring.html#how-to-configure-colorspace-allocation',
-    '',
-    '-------------------------------------------------'
-]
+presets_to_compile = [preset_default, preset_gold]
 
 
-# Print the parameters
-print(f'{vt_name = }')
-print(f'{vt_version = }')
-print(f'{compress_lg2_min = }')
-print(f'{compress_lg2_max = }')
-print(f'{parallel_processing = }')
-print(f'{lut_dims = }')
-print(f'{lut_filename = }')
-print(f'{lut_comments = }')
-print('')
+# Compile the presets to 3D LUT files
+for preset in presets_to_compile:
+    print(f'Compiling preset: "{preset["name"]}"')
 
-t_start = time.time()
+    lut_name = f'flim_{preset["name"]}'
+    lut_comments = [
+        '-------------------------------------------------',
+        '',
+        f'flim v{vt_version} - Bean\'s Filmic Transform',
+        '',
+        f'Preset: {preset["name"]}',
+        '',
+        'LUT input is expected to be in Linear BT.709 I-D65 and gone through an AllocationTransform like the following:',
+        f'!<AllocationTransform> {{allocation: lg2, vars: [{preset["lut_compress_log2_min"]}, {preset["lut_compress_log2_max"]}, {2**preset["lut_compress_log2_min"]}]}}',
+        '',
+        'Output will be in sRGB 2.2.',
+        '',
+        'Repo:',
+        'https://github.com/bean-mhm/flim',
+        '',
+        'Read more:',
+        'https://opencolorio.readthedocs.io/en/latest/guides/authoring/authoring.html#how-to-configure-colorspace-allocation',
+        '',
+        '-------------------------------------------------'
+    ]
+    
+    t_start = time.time()
+    
+    # Make a linear 3D LUT
+    print('Making a linear 3D LUT...')
+    lut = colour.LUT3D(
+        table=colour.LUT3D.linear_table(preset['lut_quantize']),
+        name=vt_name,
+        domain=np.array([[0, 0, 0], [1, 1, 1]]),
+        size=preset['lut_quantize'],
+        comments=lut_comments
+    )
+    
+    # Apply transform on the LUT table
+    print('Applying transform on the LUT table...')
+    lut.table = apply_transform(lut.table, preset)
 
-# Make a linear 3D LUT
-print('Making a linear 3D LUT...')
-lut = colour.LUT3D(
-    table = colour.LUT3D.linear_table(lut_dims),
-    name = vt_name,
-    domain = np.array([[0, 0, 0], [1, 1, 1]]),
-    size = lut_dims,
-    comments = lut_comments
-)
+    # Write the LUT
+    print('Writing the LUT...')
+    script_dir = os.path.realpath(os.path.dirname(__file__))
+    colour.write_LUT(
+        LUT=lut,
+        path=f"{script_dir}/{lut_name}.spi3d",
+        decimals=5,
+        method='Sony SPI3D'
+    )
 
-# Apply transform on the LUT
-print('Applying the transform...')
-lut.table = apply_transform(lut.table, compress_lg2_min, compress_lg2_max, parallel_processing)
-
-# Write the LUT
-print('Writing the LUT...')
-script_dir = os.path.realpath(os.path.dirname(__file__))
-colour.write_LUT(
-    LUT = lut,
-    path = f"{script_dir}/{lut_filename}.spi3d",
-    decimals = 5,
-    method = 'Sony SPI3D'
-)
-
-t_end = time.time()
-
-print(f'Done ({t_end - t_start:.1f} s)')
+    t_end = time.time()
+    
+    print(f'Preset compiled: "{preset["name"]}" ({t_end - t_start:.1f} s)\n')

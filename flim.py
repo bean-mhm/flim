@@ -19,38 +19,57 @@ from utils import *
 
 
 vt_name = 'flim'
-vt_version = '0.5.0'
+vt_version = '0.6.0'
+
+# Use parallel processing?
+parallel = True
+
+# Print the current indices while processing? (slow)
+print_indices = False
 
 
 # Transform a 3D LUT
-def apply_transform(table: np.ndarray, compress_lg2_min, compress_lg2_max, parallel):
+def apply_transform(table: np.ndarray, preset: dict):
     if len(table.shape) != 4:
         raise Exception('table must have 4 dimensions (3 for xyz, 1 for the color channels)')
     
     if table.shape[3] != 3:
         raise Exception('the fourth axis must have a size of 3 (RGB)')
     
-    # Decompress: Map Range
+    # LUT Decompression: Map Range
     table = colour.algebra.linear_conversion(
         table,
         np.array([0.0, 1.0]),
-        np.array([compress_lg2_min, compress_lg2_max])
+        np.array([preset['lut_compress_log2_min'], preset['lut_compress_log2_max']])
     )
     
-    # Decompress: Exponent
+    # LUT Decompression: Exponent
     colour.algebra.set_spow_enable(True)
     table = np.power(2.0, table)
     
-    # Decompress: Black Point
-    offset = (2.0**compress_lg2_min)
+    # LUT Decompression: Black Offset
+    offset = (2.0**preset['lut_compress_log2_min'])
     table -= offset
     
     # Eliminate negative values (useless)
     table = np.maximum(table, 0.0)
     
     # Pre-Exposure
-    pre_exposure = 0.95
-    table *= (2**pre_exposure)
+    table *= (2**preset['pre_exposure'])
+    
+    # Gamut Extension Matrix (Linear BT.709)
+    extend_mat = flim_gamut_extension_mat(
+        preset['extended_gamut_red_scale'],
+        preset['extended_gamut_green_scale'],
+        preset['extended_gamut_blue_scale'],
+        preset['extended_gamut_red_rot'],
+        preset['extended_gamut_green_rot'],
+        preset['extended_gamut_blue_rot'],
+        preset['extended_gamut_red_mul'],
+        preset['extended_gamut_green_mul'],
+        preset['extended_gamut_blue_mul']
+    )
+    extend_mat_inv = np.linalg.inv(extend_mat)
     
     # Apply element-wise transform (calls transform_rgb)
     if parallel:
@@ -61,7 +80,13 @@ def apply_transform(table: np.ndarray, compress_lg2_min, compress_lg2_max, paral
         stride_z = table.shape[0] * table.shape[1]
         
         results = joblib.Parallel(n_jobs=8)(
-            joblib.delayed(run_parallel)(table, (i % stride_y, (i % stride_z) // stride_y, i // stride_z)) for i in range(num_points)
+            joblib.delayed(run_parallel)(
+                table,
+                (i % stride_y, (i % stride_z) // stride_y, i // stride_z),
+                preset,
+                extend_mat,
+                extend_mat_inv)
+            for i in range(num_points)
         )
     
         # Arrange the results
@@ -75,9 +100,10 @@ def apply_transform(table: np.ndarray, compress_lg2_min, compress_lg2_max, paral
         print('Starting serial element-wise transform...')
         for z in range(table.shape[2]):
             for y in range(table.shape[1]):
-                print(f'at [0, {y}, {z}]')
+                if print_indices:
+                    print(f'at [0, {y}, {z}]')
                 for x in range(table.shape[0]):
-                    table[x, y, z] = transform_rgb(table[x, y, z])
+                    table[x, y, z] = transform_rgb(table[x, y, z], preset, extend_mat, extend_mat_inv)
     
     # OETF (Gamma 2.2)
     table = colour.algebra.spow(table, 1.0 / 2.2)
@@ -85,27 +111,30 @@ def apply_transform(table: np.ndarray, compress_lg2_min, compress_lg2_max, paral
     return table
 
 
-def run_parallel(table, indices):
-    result = transform_rgb(table[indices])
-    print(f'{indices} done')
+# Calls transform_rgb
+def run_parallel(table, indices, preset: dict, extend_mat, extend_mat_inv):
+    result = transform_rgb(table[indices], preset, extend_mat, extend_mat_inv)
+    
+    if print_indices:
+        print(f'{indices} done')
+    
     return result
 
 
 # Transform a single RGB triplet
-# This function should only be called by apply_transform.
-def transform_rgb(inp):
-    # Gamut Extension Matrix (Linear BT.709)
-    extend_mat = flim_gamut_extension_mat(red_scale = 1.05, green_scale = 1.12, blue_scale = 1.045, red_rot = 0.5, green_rot = 2.0, blue_rot = 0.0)
-    extend_mat_inv = np.linalg.inv(extend_mat)
-    
+# You should never directly call this function.
+def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv):
     # Convert to extended gamut
     inp = np.matmul(extend_mat, inp)
     
     # Develop Negative
-    inp = flim_rgb_develop(inp, exposure = 5.3, blue_sens = 1.0, green_sens = 1.0, red_sens = 1.0, max_density = 10.0)
+    inp = flim_rgb_develop(inp, exposure=preset['negative_film_exposure'], blue_sens=1.0, green_sens=1.0, red_sens=1.0, max_density=preset['negative_film_density'])
+    
+    # Backlight
+    inp = inp * preset['print_backlight']
     
     # Develop Print
-    inp = flim_rgb_develop(inp, exposure = 5.3, blue_sens = 1.0, green_sens = 1.0, red_sens = 1.0, max_density = 13.3)
+    inp = flim_rgb_develop(inp, exposure=preset['print_film_exposure'], blue_sens=1.0, green_sens=1.0, red_sens=1.0, max_density=preset['print_film_density'])
     
     # Convert from extended gamut
     inp = np.matmul(extend_mat_inv, inp)
@@ -114,10 +143,10 @@ def transform_rgb(inp):
     inp = np.maximum(inp, 0.0)
     
     # Highlight Cap
-    inp = inp / 0.91
+    inp = inp / preset['highlight_cap']
     
     # Black Point
-    inp = rgb_uniform_offset(inp, black_point = 1.47, white_point = 0.0)
+    inp = rgb_uniform_offset(inp, preset['black_point'], preset['white_point'])
     
     # Clamp
     inp = np.clip(inp, 0, 1)
@@ -125,7 +154,7 @@ def transform_rgb(inp):
     # Midtone Saturation
     mono = rgb_avg(inp)
     mix = map_range_clamp(mono, 0.05, 0.5, 0.0, 1.0) if mono <= 0.5 else map_range_clamp(mono, 0.5, 0.95, 1.0, 0.0)
-    inp = lerp(inp, blender_hue_sat(inp, 0.5, 1.02, 1.0), mix)
+    inp = lerp(inp, blender_hue_sat(inp, 0.5, preset['midtone_saturation'], 1.0), mix)
     
     # Clip and return
     return np.clip(inp, 0, 1)
