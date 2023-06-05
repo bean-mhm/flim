@@ -24,8 +24,6 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
 
 ![13 - SRIC_arri_alexa35 01033 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/30cf9cf9-e26d-463a-be9e-451290673795)
 
-![17 - SRIC_arri_alexa35 01037 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/6a468503-3081-42ca-98de-6cfb3651f540)
-
 ![19 - SRIC_hdm-vmlab-hdr 01005 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/d5605dfc-60f6-42d6-b4d1-81a6455082aa)
 
 ![25 - SRIC_hdm-vmlab-hdr 01032 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/89592952-3cfa-4008-baa3-71766092fd0f)
