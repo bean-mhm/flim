@@ -14,7 +14,7 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
 
 ## Eye Candy
 
-- See comparisons between native sRGB, AgX, and flim's presets in the [releases](https://github.com/bean-mhm/flim/releases) section.
+- See comparisons between native sRGB, [AgX](https://github.com/sobotka/SB2383-Configuration-Generation), and flim's presets in the [releases](https://github.com/bean-mhm/flim/releases) section.
 
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
@@ -38,7 +38,25 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
 
 ![54 - lakeside_2k - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/d0e6302c-b0d6-41b6-9b41-1fb755b4997a)
 
+## Releases
 
+Here's what each new release contains:
+
+ - 3D LUTs for flim
+
+ - An [OpenColorIO](https://opencolorio.org/) config containing [AgX](https://github.com/sobotka/SB2383-Configuration-Generation) and flim's presets as view transforms
+
+ - Comparisons between flim and other view transforms
+
+[See the latest release here.](https://github.com/bean-mhm/flim/releases)
+
+## Using the Config
+
+As mentioned above, each new release comes with a config containing flim and [AgX](https://github.com/sobotka/SB2383-Configuration-Generation). If your DCC software supports [OpenColorIO](https://opencolorio.org/) for color management, you should be able to use flim's config. In [Blender](https://www.blender.org/), for example, you can swap the contents of the `colormanagement` folder with the contents of the config you want to use, after making a backup of Blender's default config (the [Filmic](https://sobotka.github.io/filmic-blender/) config, made by the author of AgX, [Troy Sobotka](https://github.com/sobotka/)).
+
+> `[Blender Installation Path]/X.X/datafiles/colormanagement`
+
+I recommend you take a look at the [Filmic](https://sobotka.github.io/filmic-blender/) config, even if you don't use Blender. [Troy](https://github.com/sobotka/) is a very respectful and experienced person in this area, and I've learned a lot from him, even while making flim. Feel free to also check out their [IMDb](https://www.imdb.com/name/nm0811888/) page, and their blog, [The Hitchhiker's Guide to Digital Colour](https://hg2dc.com/).
 
 ## Scripts
 
