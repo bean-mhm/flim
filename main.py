@@ -13,7 +13,10 @@ import colour
 import os
 import time
 
-from flim import apply_transform, vt_name, vt_version
+from flim import apply_transform
+
+
+version = '1.0.0'
 
 
 # Presets
@@ -26,7 +29,7 @@ preset_default = {
     'lut_compress_log2_max': +12,
     'lut_quantize': 80,
     
-    'pre_exposure': 0.95,
+    'pre_exposure': 1.45,
     
     'extended_gamut_red_scale': 1.05,
     'extended_gamut_green_scale': 1.12,
@@ -38,15 +41,21 @@ preset_default = {
     'extended_gamut_green_mul': 1.0,
     'extended_gamut_blue_mul': 1.0,
     
-    'negative_film_exposure': 5.3,
-    'negative_film_density': 10.0,
+    'negative_film_exposure': 5.0,
+    'negative_film_blue_sens': 1.0,
+    'negative_film_green_sens': 1.0,
+    'negative_film_red_sens': 1.0,
+    'negative_film_density': 9.5,
     
     'print_backlight': np.array([1.0, 1.0, 1.0]),
-    'print_film_exposure': 5.3,
-    'print_film_density': 13.3,
+    'print_film_exposure': 5.0,
+    'print_film_blue_sens': 1.0,
+    'print_film_green_sens': 1.0,
+    'print_film_red_sens': 1.0,
+    'print_film_density': 14.5,
     
-    'highlight_cap': np.array([0.91, 0.91, 0.91]),
-    'black_point': 1.47,
+    'highlight_cap': np.array([0.883, 0.883, 0.883]),
+    'black_point': 1.0,
     'white_point': 0.0,
     'midtone_saturation': 1.02
 }
@@ -56,29 +65,35 @@ preset_gold = {
     'info_url': None,
     
     'lut_compress_log2_min': -10,
-    'lut_compress_log2_max': +10,
+    'lut_compress_log2_max': +10.5,
     'lut_quantize': 80,
     
-    'pre_exposure': 3.3,
+    'pre_exposure': 6.1,
     
     'extended_gamut_red_scale': 1.05,
-    'extended_gamut_green_scale': 1.12,
+    'extended_gamut_green_scale': 1.11,
     'extended_gamut_blue_scale': 1.045,
     'extended_gamut_red_rot': 0.5,
-    'extended_gamut_green_rot': 1.0,
+    'extended_gamut_green_rot': 2.5,
     'extended_gamut_blue_rot': 0.0,
     'extended_gamut_red_mul': 1.0,
     'extended_gamut_green_mul': 1.0,
-    'extended_gamut_blue_mul': 1.2,
+    'extended_gamut_blue_mul': 1.04,
     
-    'negative_film_exposure': 2.3,
-    'negative_film_density': 8.2,
+    'negative_film_exposure': 2.0,
+    'negative_film_blue_sens': 1.0,
+    'negative_film_green_sens': 1.0,
+    'negative_film_red_sens': 1.0,
+    'negative_film_density': 12.0,
     
-    'print_backlight': np.array([1.1, 0.99, 1.04828]),
-    'print_film_exposure': 2.3,
-    'print_film_density': 26.0,
+    'print_backlight': np.array([1.015, 0.995, 0.998]),
+    'print_film_exposure': 8.0,
+    'print_film_blue_sens': 1.0,
+    'print_film_green_sens': 1.0,
+    'print_film_red_sens': 1.0,
+    'print_film_density': 16.0,
     
-    'highlight_cap': np.array([0.97, 0.97, 0.97]),
+    'highlight_cap': np.array([0.81, 0.81, 0.81]),
     'black_point': 0.0,
     'white_point': 0.0,
     'midtone_saturation': 1.0
@@ -103,7 +118,7 @@ for preset in presets_to_compile:
         f"    family: Image Formation\n" \
         f"    equalitygroup: \"\"\n" \
         f"    bitdepth: unknown\n" \
-        f"    description: {vt_name} v{vt_version} - https://github.com/bean-mhm/flim\n" \
+        f"    description: flim v{version} - https://github.com/bean-mhm/flim\n" \
         f"    isdata: false\n" \
         f"    allocation: uniform\n" \
         f"    from_scene_reference: !<GroupTransform>\n" \
@@ -133,7 +148,7 @@ for preset in presets_to_compile:
     lut_comments = [
         '-------------------------------------------------',
         '',
-        f'{vt_name} v{vt_version} - Bean\'s Filmic Transform',
+        f'flim v{version} - Filmic Color Transform',
         '',
         f'Preset: {preset["name"]}',
         f'URL: {preset["info_url"]}',
@@ -162,7 +177,7 @@ for preset in presets_to_compile:
     print('Making a linear 3D LUT...')
     lut = colour.LUT3D(
         table=colour.LUT3D.linear_table(preset['lut_quantize']),
-        name=vt_name,
+        name='flim',
         domain=np.array([[0, 0, 0], [1, 1, 1]]),
         size=preset['lut_quantize'],
         comments=lut_comments
