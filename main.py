@@ -29,7 +29,7 @@ preset_default = {
     'lut_compress_log2_max': +12,
     'lut_quantize': 80,
     
-    'pre_exposure': 1.45,
+    'pre_exposure': 0.9,
     
     'extended_gamut_red_scale': 1.05,
     'extended_gamut_green_scale': 1.12,
@@ -41,21 +41,21 @@ preset_default = {
     'extended_gamut_green_mul': 1.0,
     'extended_gamut_blue_mul': 1.0,
     
-    'negative_film_exposure': 5.0,
+    'negative_film_exposure': 7.0,
     'negative_film_blue_sens': 1.0,
     'negative_film_green_sens': 1.0,
     'negative_film_red_sens': 1.0,
-    'negative_film_density': 9.5,
+    'negative_film_density': 9.8,
     
     'print_backlight': np.array([1.0, 1.0, 1.0]),
-    'print_film_exposure': 5.0,
+    'print_film_exposure': 6.5,
     'print_film_blue_sens': 1.0,
     'print_film_green_sens': 1.0,
     'print_film_red_sens': 1.0,
-    'print_film_density': 14.5,
+    'print_film_density': 16.0,
     
-    'highlight_cap': np.array([0.883, 0.883, 0.883]),
-    'black_point': 1.0,
+    'highlight_cap': np.array([0.65, 0.65, 0.65]),
+    'black_point': 0.22,
     'white_point': 0.0,
     'midtone_saturation': 1.02
 }
