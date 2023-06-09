@@ -1,4 +1,4 @@
-# 🎞️ flim - Bean's Filmic Transform
+﻿# 🎞️ flim - Filmic Color Transform
 
 ## Introduction
 
@@ -91,7 +91,7 @@ The LUT comments contain most of the information you need. The following is an e
 ```
 # -------------------------------------------------
 # 
-# flim v0.6.1 - Bean's Filmic Transform
+# flim v0.6.1 - Filmic Color Transform
 # 
 # Preset: default
 # URL: None
