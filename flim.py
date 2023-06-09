@@ -1,6 +1,6 @@
 """
 
-flim - Bean's Filmic Transform
+flim - Filmic Color Transform
 
 Input Color Space:   Linear BT.709 I-D65
 Output Color Space:  sRGB 2.2
@@ -17,9 +17,6 @@ import joblib
 
 from utils import *
 
-
-vt_name = 'flim'
-vt_version = '0.6.1'
 
 # Use parallel processing?
 parallel = True
@@ -128,13 +125,13 @@ def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv):
     inp = np.matmul(extend_mat, inp)
     
     # Develop Negative
-    inp = flim_rgb_develop(inp, exposure=preset['negative_film_exposure'], blue_sens=1.0, green_sens=1.0, red_sens=1.0, max_density=preset['negative_film_density'])
+    inp = flim_rgb_develop(inp, preset['negative_film_exposure'], preset['negative_film_blue_sens'], preset['negative_film_green_sens'], preset['negative_film_red_sens'], preset['negative_film_density'])
     
     # Backlight
     inp = inp * preset['print_backlight']
     
     # Develop Print
-    inp = flim_rgb_develop(inp, exposure=preset['print_film_exposure'], blue_sens=1.0, green_sens=1.0, red_sens=1.0, max_density=preset['print_film_density'])
+    inp = flim_rgb_develop(inp, preset['print_film_exposure'], preset['print_film_blue_sens'], preset['print_film_green_sens'], preset['print_film_red_sens'], preset['print_film_density'])
     
     # Convert from extended gamut
     inp = np.matmul(extend_mat_inv, inp)
