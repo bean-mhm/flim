@@ -11,6 +11,8 @@ https://github.com/bean-mhm/flim
 import numpy as np
 import colour
 
+from super_sigmoid import super_sigmoid
+
 
 # Constants
 
@@ -237,17 +239,7 @@ def rgb_uniform_offset(inp, black_point, white_point):
     return inp * map_range_clamp(mono, black_point / 1000, 1 - (white_point / 1000), 0, 1) / mono
 
 
-# Adjust the highlights and the shadows in a smooth way.
-# Note: All arguments must be scalars.
-def enhance_curve(inp, shadow_pow, highlight_pow, mix_pow):
-    a = inp**shadow_pow
-    b = 1.0 - (1.0 - inp)**highlight_pow
-    mix = inp**mix_pow
-    
-    return lerp(a, b, mix)
-
-
-def flim_sigmoid(inp, toe, shoulder, transition):
+def enhance_curve(inp, toe, shoulder, transition):
     a = inp**toe
     b = 1.0 - (1.0 - inp)**shoulder
     mix = inp**transition
@@ -255,12 +247,29 @@ def flim_sigmoid(inp, toe, shoulder, transition):
     return lerp(a, b, mix)
 
 
+def enhance_curve_reverse_mix(inp, toe, shoulder, transition):
+    a = inp**toe
+    b = 1.0 - (1.0 - inp)**shoulder
+    mix = 1.0 - (1.0 - inp)**transition
+    
+    return lerp(a, b, mix)
+
+
+def flim_sigmoid_old(inp):
+    return 1.0 - enhance_curve(1.0 - inp, toe=4.0, shoulder=2.0, transition=2.0)
+
+
+def flim_sigmoid(inp):
+    inp = super_sigmoid(0.0)
+    return inp
+
+
 def flim_dye_mix_factor(mono, max_density):
     # log2 and map range
     fac = map_range_clamp(np.log2(mono + 0.0625), -4.0, 16.0, 0.0, 1.0)
     
-    # Calculate exposure
-    fac = 1.0 - flim_sigmoid(1.0 - fac, toe=4.0, shoulder=2.0, transition=2.0)
+    # Calculate amount of exposure from 0 to 1
+    fac = flim_sigmoid(fac)
     
     # Calculate dye density
     fac *= max_density
@@ -268,7 +277,7 @@ def flim_dye_mix_factor(mono, max_density):
     # Mix factor
     fac = 2.0 ** (-fac)
     
-    # Clip
+    # Clip and return
     return np.clip(fac, 0, 1)
 
 
