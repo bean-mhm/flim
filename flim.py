@@ -68,6 +68,12 @@ def apply_transform(table: np.ndarray, preset: dict):
     )
     extend_mat_inv = np.linalg.inv(extend_mat)
     
+    # Upper and lower limits in the print
+    big = 10_000_000.0
+    white_cap = negative_and_print(np.array([big, big, big]), preset)
+    black_cap = negative_and_print(np.array([0, 0, 0]), preset)
+    black_cap /= white_cap
+    
     # Apply element-wise transform (calls transform_rgb)
     if parallel:
         print('Starting parallel element-wise transform...')
@@ -82,7 +88,9 @@ def apply_transform(table: np.ndarray, preset: dict):
                 (i % stride_y, (i % stride_z) // stride_y, i // stride_z),
                 preset,
                 extend_mat,
-                extend_mat_inv)
+                extend_mat_inv,
+                white_cap,
+                black_cap)
             for i in range(num_points)
         )
     
@@ -100,7 +108,14 @@ def apply_transform(table: np.ndarray, preset: dict):
                 if print_indices:
                     print(f'at [0, {y}, {z}]')
                 for x in range(table.shape[0]):
-                    table[x, y, z] = transform_rgb(table[x, y, z], preset, extend_mat, extend_mat_inv)
+                    table[x, y, z] = transform_rgb(
+                        table[x, y, z],
+                        preset,
+                        extend_mat,
+                        extend_mat_inv,
+                        white_cap,
+                        black_cap
+                    )
     
     # OETF (Gamma 2.2)
     table = colour.algebra.spow(table, 1.0 / 2.2)
@@ -109,8 +124,8 @@ def apply_transform(table: np.ndarray, preset: dict):
 
 
 # Calls transform_rgb
-def run_parallel(table, indices, preset: dict, extend_mat, extend_mat_inv):
-    result = transform_rgb(table[indices], preset, extend_mat, extend_mat_inv)
+def run_parallel(table, indices, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap):
+    result = transform_rgb(table[indices], preset, extend_mat, extend_mat_inv, white_cap, black_cap)
     
     if print_indices:
         print(f'{indices} done')
@@ -118,20 +133,53 @@ def run_parallel(table, indices, preset: dict, extend_mat, extend_mat_inv):
     return result
 
 
-# Transform a single RGB triplet
-# You should never directly call this function.
-def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv):
-    # Convert to extended gamut
-    inp = np.matmul(extend_mat, inp)
+def negative_and_print(inp, preset: dict):
+    log2_min = preset['sigmoid_log2_min']
+    log2_max = preset['sigmoid_log2_max']
+    sigmoid_points = np.array([
+        preset['sigmoid_toe_x'],
+        preset['sigmoid_toe_y'],
+        preset['sigmoid_shoulder_x'],
+        preset['sigmoid_shoulder_y']
+    ])
     
     # Develop Negative
-    inp = flim_rgb_develop(inp, preset['negative_film_exposure'], preset['negative_film_blue_sens'], preset['negative_film_green_sens'], preset['negative_film_red_sens'], preset['negative_film_density'])
+    inp = flim_rgb_develop(
+        inp,
+        preset['negative_film_exposure'],
+        log2_min,
+        log2_max,
+        sigmoid_points,
+        preset['negative_film_density']
+    )
     
     # Backlight
     inp = inp * preset['print_backlight']
     
     # Develop Print
-    inp = flim_rgb_develop(inp, preset['print_film_exposure'], preset['print_film_blue_sens'], preset['print_film_green_sens'], preset['print_film_red_sens'], preset['print_film_density'])
+    inp = flim_rgb_develop(
+        inp,
+        preset['print_film_exposure'],
+        log2_min,
+        log2_max,
+        sigmoid_points,
+        preset['print_film_density']
+    )
+
+    return inp
+
+
+# Transform a single RGB triplet
+# You should never directly call this function.
+def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap):
+    # Pre-Formation Filter
+    inp = inp * preset['pre_formation_filter']
+    
+    # Convert to extended gamut
+    inp = np.matmul(extend_mat, inp)
+    
+    # Negative & Print
+    inp = negative_and_print(inp, preset)
     
     # Convert from extended gamut
     inp = np.matmul(extend_mat_inv, inp)
@@ -139,14 +187,20 @@ def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv):
     # Eliminate negative values
     inp = np.maximum(inp, 0.0)
     
-    # Highlight Cap
-    inp = inp / preset['highlight_cap']
+    # White cap
+    inp /= white_cap
     
-    # Black Point
-    inp = rgb_uniform_offset(inp, preset['black_point'], preset['white_point'])
+    # Black cap
+    if preset['black_point'].lower() == 'auto' or preset['black_point'] in ['', None]:
+        inp = rgb_uniform_offset(inp, rgb_avg(black_cap) * 1000.0, 0.0)
+    else:
+        inp = rgb_uniform_offset(inp, preset['black_point'], 0.0)
     
-    # Clamp
+    # Clip
     inp = np.clip(inp, 0, 1)
+    
+    # Post-Formation Filter
+    inp = inp * preset['post_formation_filter']
     
     # Midtone Saturation
     mono = rgb_avg(inp)
