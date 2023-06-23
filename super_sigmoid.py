@@ -45,6 +45,3 @@ def demo_plot():
     ax.grid()
     
     plt.show()
-
-
-demo_plot()
