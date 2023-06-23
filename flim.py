@@ -173,7 +173,7 @@ def negative_and_print(inp, preset: dict):
 # You should never directly call this function.
 def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap):
     # Pre-Formation Filter
-    inp = inp * preset['pre_formation_filter']
+    inp = lerp(inp, inp * preset['pre_formation_filter'], preset['pre_formation_filter_strength'])
     
     # Convert to extended gamut
     inp = np.matmul(extend_mat, inp)
@@ -196,11 +196,11 @@ def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv, white_cap, blac
     else:
         inp = rgb_uniform_offset(inp, preset['black_point'], 0.0)
     
+    # Post-Formation Filter
+    inp = lerp(inp, inp * preset['post_formation_filter'], preset['post_formation_filter_strength'])
+    
     # Clip
     inp = np.clip(inp, 0, 1)
-    
-    # Post-Formation Filter
-    inp = inp * preset['post_formation_filter']
     
     # Midtone Saturation
     mono = rgb_avg(inp)

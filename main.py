@@ -31,6 +31,7 @@ preset_default = {
     
     'pre_exposure': 4.3,
     'pre_formation_filter': np.array([1.0, 1.0, 1.0]),
+    'pre_formation_filter_strength': 0.0,
     
     'extended_gamut_red_scale': 1.05,
     'extended_gamut_green_scale': 1.12,
@@ -58,6 +59,7 @@ preset_default = {
     
     'black_point': 'auto',
     'post_formation_filter': np.array([1.0, 1.0, 1.0]),
+    'post_formation_filter_strength': 0.0,
     'midtone_saturation': 1.02
 }
 
