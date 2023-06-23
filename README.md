@@ -162,9 +162,9 @@ col = np.array([4.2, 0.23, 0.05])
 col = np.maximum(col, 0.0)
 
 # AllocationTransform
-col += 0.00048828125  # offset by 2 to the power of -11 (lower bound after log2)
+col += 0.000244140625  # offset by 2 to the power of -12 (lower bound of log2 compression)
 col = np.log2(col)
-col = map_range(col, from=[-11, 12], to=[0, 1], clamp=True)
+col = map_range(col, from=[-12, 10], to=[0, 1], clamp=True)
 
 # Sample from the 3D LUT (output color space: sRGB 2.2)
 out = lut.sample(TRILINEAR, col)
