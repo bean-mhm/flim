@@ -259,17 +259,25 @@ def flim_sigmoid_old(inp):
     return 1.0 - enhance_curve(1.0 - inp, toe=4.0, shoulder=2.0, transition=2.0)
 
 
-def flim_sigmoid(inp):
-    inp = super_sigmoid(0.0)
-    return inp
-
-
-def flim_dye_mix_factor(mono, max_density):
+def flim_dye_mix_factor(
+    mono,
+    log2_min,
+    log2_max,
+    sigmoid_points,
+    max_density):
+    
     # log2 and map range
-    fac = map_range_clamp(np.log2(mono + 0.0625), -4.0, 16.0, 0.0, 1.0)
+    offset = 2.0**log2_min
+    fac = map_range_clamp(np.log2(mono + offset), log2_min, log2_max, 0.0, 1.0)
     
     # Calculate amount of exposure from 0 to 1
-    fac = flim_sigmoid(fac)
+    fac = super_sigmoid(
+        fac,
+        toe_x=sigmoid_points[0],
+        toe_y=sigmoid_points[1],
+        shoulder_x=sigmoid_points[2],
+        shoulder_y=sigmoid_points[3]
+    )
     
     # Calculate dye density
     fac *= max_density
@@ -281,14 +289,22 @@ def flim_dye_mix_factor(mono, max_density):
     return np.clip(fac, 0, 1)
 
 
-def flim_rgb_color_layer(inp, sensitivity_tone, sensitivity_amount, dye_tone, max_density):
+def flim_rgb_color_layer(
+    inp,
+    sensitivity_tone,
+    dye_tone,
+    log2_min,
+    log2_max,
+    sigmoid_points,
+    max_density):
+    
     # Normalize
     sensitivity_tone_norm = sensitivity_tone / rgb_sum(sensitivity_tone)
     dye_tone_norm = dye_tone / rgb_max(dye_tone)
     
     # Dye mix factor
-    mono = np.dot(inp, sensitivity_tone_norm) * sensitivity_amount
-    mix = flim_dye_mix_factor(mono, max_density)
+    mono = np.dot(inp, sensitivity_tone_norm)
+    mix = flim_dye_mix_factor(mono, log2_min, log2_max, sigmoid_points, max_density)
     
     # Dye mixing
     out = lerp(dye_tone_norm, white, mix)
@@ -296,21 +312,25 @@ def flim_rgb_color_layer(inp, sensitivity_tone, sensitivity_amount, dye_tone, ma
     return out
 
 
-def flim_rgb_develop(inp, exposure, blue_sens, green_sens, red_sens, max_density):
+def flim_rgb_develop(
+    inp,
+    exposure,
+    log2_min,
+    log2_max,
+    sigmoid_points,
+    max_density):
+    
     # Exposure
     inp = inp * 2**exposure
     
     # Blue-sensitive layer
-    out = flim_rgb_color_layer(inp, blue, blue_sens, yellow, max_density)
+    out = flim_rgb_color_layer(inp, blue, yellow, log2_min, log2_max, sigmoid_points, max_density)
     
     # Green-sensitive layer
-    out *= flim_rgb_color_layer(inp, green, green_sens, magenta, max_density)
+    out *= flim_rgb_color_layer(inp, green, magenta, log2_min, log2_max, sigmoid_points, max_density)
     
     # Red-sensitive layer
-    out *= flim_rgb_color_layer(inp, red, red_sens, cyan, max_density)
-    
-    # Filter sensitivty tint
-    out *= np.array([red_sens, green_sens, blue_sens])
+    out *= flim_rgb_color_layer(inp, red, cyan, log2_min, log2_max, sigmoid_points, max_density)
     
     return out
 
