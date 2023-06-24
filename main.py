@@ -25,7 +25,7 @@ preset_default = {
     'name': 'default',
     'info_url': None,
     
-    'lut_compress_log2_min': -12,
+    'lut_compress_log2_min': -10,
     'lut_compress_log2_max': +10,
     'lut_quantize': 80,
     
@@ -63,12 +63,49 @@ preset_default = {
     'midtone_saturation': 1.02
 }
 
-preset_gold = {
-    'name': 'gold',
-    'info_url': None
+preset_silver = {
+    'name': 'silver',
+    'info_url': None,
+    
+    'lut_compress_log2_min': -10,
+    'lut_compress_log2_max': +10,
+    'lut_quantize': 80,
+    
+    'pre_exposure': 3.9,
+    'pre_formation_filter': np.array([0.0, 0.5, 1.0]),
+    'pre_formation_filter_strength': 0.05,
+    
+    'extended_gamut_red_scale': 1.05,
+    'extended_gamut_green_scale': 1.12,
+    'extended_gamut_blue_scale': 1.045,
+    'extended_gamut_red_rot': 0.5,
+    'extended_gamut_green_rot': 2.0,
+    'extended_gamut_blue_rot': 0.1,
+    'extended_gamut_red_mul': 1.0,
+    'extended_gamut_green_mul': 1.0,
+    'extended_gamut_blue_mul': 1.06,
+    
+    'sigmoid_log2_min': -10.0,
+    'sigmoid_log2_max': 22.0,
+    'sigmoid_toe_x': 0.44,
+    'sigmoid_toe_y': 0.28,
+    'sigmoid_shoulder_x': 0.591,
+    'sigmoid_shoulder_y': 0.779,
+    
+    'negative_film_exposure': 4.7,
+    'negative_film_density': 7.0,
+    
+    'print_backlight': np.array([0.9976, 0.97, 1.0]),
+    'print_film_exposure': 4.7,
+    'print_film_density': 30.0,
+    
+    'black_point': 0.5,
+    'post_formation_filter': np.array([1.0, 1.0, 0.0]),
+    'post_formation_filter_strength': 0.04,
+    'midtone_saturation': 1.0
 }
 
-presets_to_compile = [preset_default]
+presets_to_compile = [preset_default, preset_silver]
 
 
 # Compile the presets to 3D LUT files
