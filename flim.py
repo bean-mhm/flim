@@ -196,7 +196,7 @@ def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv, white_cap, blac
     inp /= white_cap
     
     # Black cap
-    if preset['black_point'].lower() == 'auto' or preset['black_point'] in ['', None]:
+    if preset['black_point'] in ['Auto', 'auto', '', None]:
         inp = rgb_uniform_offset(inp, rgb_avg(black_cap) * 1000.0, 0.0)
     else:
         inp = rgb_uniform_offset(inp, preset['black_point'], 0.0)
