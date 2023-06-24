@@ -68,10 +68,13 @@ def apply_transform(table: np.ndarray, preset: dict):
     )
     extend_mat_inv = np.linalg.inv(extend_mat)
     
+    # Backlight (extended gamut)
+    backlight_ext = np.matmul(extend_mat, preset['print_backlight'])
+    
     # Upper and lower limits in the print
     big = 10_000_000.0
-    white_cap = negative_and_print(np.array([big, big, big]), preset)
-    black_cap = negative_and_print(np.array([0, 0, 0]), preset)
+    white_cap = negative_and_print(np.array([big, big, big]), preset, backlight_ext)
+    black_cap = negative_and_print(np.array([0, 0, 0]), preset, backlight_ext)
     black_cap /= white_cap
     
     # Apply element-wise transform (calls transform_rgb)
@@ -90,7 +93,8 @@ def apply_transform(table: np.ndarray, preset: dict):
                 extend_mat,
                 extend_mat_inv,
                 white_cap,
-                black_cap)
+                black_cap,
+                backlight_ext)
             for i in range(num_points)
         )
     
@@ -114,7 +118,8 @@ def apply_transform(table: np.ndarray, preset: dict):
                         extend_mat,
                         extend_mat_inv,
                         white_cap,
-                        black_cap
+                        black_cap,
+                        backlight_ext
                     )
     
     # OETF (Gamma 2.2)
@@ -124,8 +129,8 @@ def apply_transform(table: np.ndarray, preset: dict):
 
 
 # Calls transform_rgb
-def run_parallel(table, indices, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap):
-    result = transform_rgb(table[indices], preset, extend_mat, extend_mat_inv, white_cap, black_cap)
+def run_parallel(table, indices, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap, backlight_ext):
+    result = transform_rgb(table[indices], preset, extend_mat, extend_mat_inv, white_cap, black_cap, backlight_ext)
     
     if print_indices:
         print(f'{indices} done')
@@ -133,7 +138,7 @@ def run_parallel(table, indices, preset: dict, extend_mat, extend_mat_inv, white
     return result
 
 
-def negative_and_print(inp, preset: dict):
+def negative_and_print(inp, preset: dict, backlight_ext):
     log2_min = preset['sigmoid_log2_min']
     log2_max = preset['sigmoid_log2_max']
     sigmoid_points = np.array([
@@ -154,7 +159,7 @@ def negative_and_print(inp, preset: dict):
     )
     
     # Backlight
-    inp = inp * preset['print_backlight']
+    inp = inp * backlight_ext
     
     # Develop Print
     inp = flim_rgb_develop(
@@ -171,7 +176,7 @@ def negative_and_print(inp, preset: dict):
 
 # Transform a single RGB triplet
 # You should never directly call this function.
-def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap):
+def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap, backlight_ext):
     # Pre-Formation Filter
     inp = lerp(inp, inp * preset['pre_formation_filter'], preset['pre_formation_filter_strength'])
     
@@ -179,7 +184,7 @@ def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv, white_cap, blac
     inp = np.matmul(extend_mat, inp)
     
     # Negative & Print
-    inp = negative_and_print(inp, preset)
+    inp = negative_and_print(inp, preset, backlight_ext)
     
     # Convert from extended gamut
     inp = np.matmul(extend_mat_inv, inp)
