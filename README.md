@@ -91,13 +91,13 @@ The LUT comments contain most of the information you need. The following is an e
 ```
 # -------------------------------------------------
 # 
-# flim v0.6.1 - Filmic Color Transform
+# flim v1.1.0 - Filmic Color Transform
 # 
 # Preset: default
 # URL: None
 # 
 # LUT input is expected to be in Linear BT.709 I-D65 and gone through an AllocationTransform like the following:
-# !<AllocationTransform> {allocation: lg2, vars: [-11, 12, 0.00048828125]}
+# !<AllocationTransform> {allocation: lg2, vars: [-10, 10, 0.0009765625]}
 # 
 # Output will be in sRGB 2.2.
 # 
@@ -110,14 +110,14 @@ colorspaces:
     family: Image Formation
     equalitygroup: ""
     bitdepth: unknown
-    description: flim v0.6.1 - https://github.com/bean-mhm/flim
+    description: flim v1.1.0 - https://github.com/bean-mhm/flim
     isdata: false
     allocation: uniform
     from_scene_reference: !<GroupTransform>
       children:
         - !<ColorSpaceTransform> {src: reference, dst: Linear BT.709 I-D65}
         - !<RangeTransform> {min_in_value: 0., min_out_value: 0.}
-        - !<AllocationTransform> {allocation: lg2, vars: [-11, 12, 0.00048828125]}
+        - !<AllocationTransform> {allocation: lg2, vars: [-10, 10, 0.0009765625]}
         - !<FileTransform> {src: flim_default.spi3d, interpolation: linear}
 ```
 ```
@@ -151,7 +151,7 @@ displays:
 
 ### Non-OCIO Guide
 
-You can replicate the transforms farily easily in order to use flim's 3D LUTs in your own pipeline without OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
+You can replicate the transforms fairly easily in order to use flim's 3D LUTs in your own pipeline without OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
 
 ```py
 # Input RGB values (color space: Linear BT.709 I-D65)
