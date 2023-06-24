@@ -181,6 +181,12 @@ out = lut.sample(TRILINEAR, col)
 
 As you saw above, flim uses logarithmic compression to fit an extremely large range of linear values without losing too much precision. The method is very simple. You take the log2 of your RGB values and map them from a large range (for example [-10, +10]) to the [0, 1] range. You can also add a tiny offset to the RGB values before taking the log2, in order to preserve tiny values all the way down to 0.
 
+## Shadertoy
+
+I made a GLSL port of flim on Shadertoy, [check it out here!](https://www.shadertoy.com/view/dd2yDz)
+
+![image](https://github.com/bean-mhm/flim/assets/98428255/28b48ad5-5fc0-41ad-a6dc-7e4406478322)
+
 ## Useful Links
 
 - [The Hitchhiker's Guide to Digital Colour - Troy Sobotka](https://hg2dc.com/)
