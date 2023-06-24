@@ -1,6 +1,7 @@
 import numpy as np
 
 
+# https://www.desmos.com/calculator/khkztixyeu
 def super_sigmoid(inp, toe_x, toe_y, shoulder_x, shoulder_y):
     # Clip
     inp = np.clip(inp, 0, 1)
