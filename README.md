@@ -10,7 +10,7 @@
 
 flim comes with 2 presets, but you can add your own presets with their custom parameters!
   - **default**: The default preset provides a generic look that works well on most images.
-  - **gold**: Gives a tastier, more dramatic look.
+  - **silver**: Gives a slightly different look.
 
 ## Eye Candy
 
@@ -54,7 +54,7 @@ As mentioned above, each new release comes with a config containing flim and [Ag
 
 > `[Blender Installation Path]/X.X/datafiles/colormanagement`
 
-I recommend you take a look at the [Filmic](https://sobotka.github.io/filmic-blender/) config, even if you don't use Blender. [Troy](https://github.com/sobotka/) is a very respectful and experienced person in this area, and I've learned a lot from him, even while making flim. Feel free to also check out their [IMDb](https://www.imdb.com/name/nm0811888/) page, and their blog, [The Hitchhiker's Guide to Digital Colour](https://hg2dc.com/).
+I recommend you take a look at the Filmic and the AgX configs. [Troy](https://github.com/sobotka/) is a very respectful and experienced person in this area, and I've learned a lot from him, even while making flim. Feel free to also check out their [IMDb](https://www.imdb.com/name/nm0811888/) page, and their blog, [The Hitchhiker's Guide to Digital Colour](https://hg2dc.com/).
 
 ## Scripts
 
@@ -83,6 +83,11 @@ First, a few notes:
  - flim's 3D LUTs are designed to be used in an [OpenColorIO](https://opencolorio.org/) (OCIO) environment, but depending on your software and environment, you might be able to manually replicate the transforms in your custom pipeline ([See Non-OCIO Guide below](#non-ocio-guide)).
  
  - flim only supports the sRGB display format as of now.
+
+If you **don't** want to:
+1. Use the test OCIO configs that come with flim's releases,
+2. Use OCIO at all,
+You can use the information below to manually use flim's 3D LUTs.
 
 If `main.py` runs successfully, you should see files named like `flim_X.spi3d` in the same directory. Alternatively, you can look up the latest LUTs in the [releases](https://github.com/bean-mhm/flim/releases) section.
 
@@ -151,7 +156,7 @@ displays:
 
 ### Non-OCIO Guide
 
-You can replicate the transforms fairly easily in order to use flim's 3D LUTs in your own pipeline without OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
+After reading the explanations above, you should be able to replicate the transforms fairly easily in order to use flim's 3D LUTs in your own pipeline without OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
 
 ```py
 # Input RGB values (color space: Linear BT.709 I-D65)
@@ -171,6 +176,10 @@ out = lut.sample(TRILINEAR, col)
 ```
 
 ![3D LUT Visualization](images/3d_lut_vis.png)
+
+## LUT Compression
+
+As you saw above, flim uses logarithmic compression to fit an extremely large range of linear values without losing too much precision. The method is very simple. You take the log2 of your RGB values and map them from a large range (for example [-10, +10]) to the [0, 1] range. You can also add a tiny offset to the RGB values before taking the log2, in order to preserve tiny values all the way down to 0.
 
 ## Useful Links
 
