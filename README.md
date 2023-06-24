@@ -18,23 +18,23 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
 
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
-- Below are some example images gone through flim's gold preset (v0.6.1).
+- Below are some example images gone through flim's different presets (v1.1.0).
 
-![12 - SRIC_arri_alexa35 01025 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/37ed3fb6-aaac-413f-835c-55ef3c65bdcc)
+![13 - SRIC_arri_alexa35 01025 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/94698a01-73a5-49fa-9b9d-0d810f34bc62)
 
-![13 - SRIC_arri_alexa35 01033 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/30cf9cf9-e26d-463a-be9e-451290673795)
+![14 - SRIC_arri_alexa35 01033 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/612d7ee6-632c-43e3-af00-100237256a26)
 
-![19 - SRIC_hdm-vmlab-hdr 01005 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/d5605dfc-60f6-42d6-b4d1-81a6455082aa)
+![46 - blue_bar_709 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/d9ae7f39-452f-4ade-97fc-2d9506e2339b)
 
-![25 - SRIC_hdm-vmlab-hdr 01032 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/89592952-3cfa-4008-baa3-71766092fd0f)
+![26 - SRIC_hdm-vmlab-hdr 01032 - 3 flim (silver)](https://github.com/bean-mhm/flim/assets/98428255/fc62b4fe-f825-434e-bd45-e908acc3a0c8)
 
-![31 - SRIC_red 01004 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/942286f9-c399-4393-86f7-b7fd9b02876b)
+![32 - SRIC_red 01004 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/c7daf7b0-5b59-462b-8673-6d557246d1bd)
 
-![34 - SRIC_red 01006 - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/45efbbc2-f842-404c-b23c-5630de831c69)
+![35 - SRIC_red 01006 - 3 flim (silver)](https://github.com/bean-mhm/flim/assets/98428255/431769b9-0345-41bd-a6a3-0956b9c5a1d7)
 
-![42 - pretville_street_4k - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/991877ce-a9b8-47b9-a296-3eecf1275f3b)
+![43 - pretville_street_4k - 3 flim (silver)](https://github.com/bean-mhm/flim/assets/98428255/e85050ae-99c4-4a01-b750-aa1b46091bfd)
 
-![54 - lakeside_2k - 3 flim (gold)](https://github.com/bean-mhm/flim/assets/98428255/d0e6302c-b0d6-41b6-9b41-1fb755b4997a)
+![55 - lakeside_2k - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/2a8730fa-6937-4c16-9c4d-bf1f964dc059)
 
 ## Releases
 
@@ -162,9 +162,9 @@ col = np.array([4.2, 0.23, 0.05])
 col = np.maximum(col, 0.0)
 
 # AllocationTransform
-col += 0.000244140625  # offset by 2 to the power of -12 (lower bound of log2 compression)
+col += 0.0009765625  # offset by 2 to the power of -10 (lower bound of log2 compression)
 col = np.log2(col)
-col = map_range(col, from=[-12, 10], to=[0, 1], clamp=True)
+col = map_range(col, from=[-10, 10], to=[0, 1], clamp=True)
 
 # Sample from the 3D LUT (output color space: sRGB 2.2)
 out = lut.sample(TRILINEAR, col)
