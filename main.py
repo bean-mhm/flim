@@ -95,7 +95,7 @@ preset_silver = {
     'negative_film_exposure': 4.7,
     'negative_film_density': 7.0,
     
-    'print_backlight': np.array([0.9992, 0.99, 1.0, 1.0]),
+    'print_backlight': np.array([0.9992, 0.99, 1.0]),
     'print_film_exposure': 4.7,
     'print_film_density': 30.0,
     
