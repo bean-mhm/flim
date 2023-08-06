@@ -12,6 +12,10 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
   - **default**: The default preset provides a generic look that works well on most images.
   - **silver**: Gives a slightly different look.
 
+## grace
+
+[grace](https://github.com/bean-mhm/grace) is a generic [OpenColorIO](https://opencolorio.org/) config I've made which contains the latest version of flim and its presets, along with other useful elements. **I suggest you use grace instead of the test config that comes with flim's releases.**
+
 ## Eye Candy
 
 - See comparisons between native sRGB, [AgX](https://github.com/sobotka/SB2383-Configuration-Generation), and flim's presets in the [releases](https://github.com/bean-mhm/flim/releases) section.
