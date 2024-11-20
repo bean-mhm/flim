@@ -1,22 +1,25 @@
 ﻿# 🎞️ flim - Filmic Color Transform
 
-## Introduction
+# Introduction
 
-**flim is an experimental film emulation transform** that can be used for:
+**flim is a film emulation transform** that can be used for:
 
 1. Displaying Digital Open-Domain (HDR) Images
 2. Color Grading
 3. Post-Processing in Video Games and Shaders ("tone-mapping")
+4. Display-View Transform in Video Editing
 
 flim comes with 2 presets, but you can add your own presets with their custom parameters!
   - **default**: The default preset provides a generic look that works well on most images.
-  - **silver**: Gives a slightly different look.
+  - **silver**: Provides a more artistic, warmer look.
 
-## grace
+### [Watch my video on YouTube about how flim works!](https://www.youtube.com/watch?v=okPzA04TLYM)
+
+# grace
 
 [grace](https://github.com/bean-mhm/grace) is a generic [OpenColorIO](https://opencolorio.org/) config I've made which contains the latest version of flim and its presets, along with other useful elements. **I suggest you use grace instead of the test config that comes with flim's releases.**
 
-## Eye Candy
+# Eye Candy
 
 - See comparisons between native sRGB, [AgX](https://github.com/sobotka/SB2383-Configuration-Generation), and flim's presets in the [releases](https://github.com/bean-mhm/flim/releases) section.
 
@@ -40,7 +43,7 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
 
 ![55 - lakeside_2k - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/2a8730fa-6937-4c16-9c4d-bf1f964dc059)
 
-## Releases
+# Releases
 
 Here's what each new release contains:
 
@@ -52,7 +55,7 @@ Here's what each new release contains:
 
 [See the latest release here.](https://github.com/bean-mhm/flim/releases)
 
-## Using the Config
+# Using the Config
 
 As mentioned above, each new release comes with a config containing flim and [AgX](https://github.com/sobotka/SB2383-Configuration-Generation). If your DCC software supports [OpenColorIO](https://opencolorio.org/) for color management, you should be able to use flim's config. In [Blender](https://www.blender.org/), for example, you can swap the contents of the `colormanagement` folder with the contents of the config you want to use, after making a backup of Blender's default config (the [Filmic](https://sobotka.github.io/filmic-blender/) config, made by the author of AgX, [Troy Sobotka](https://github.com/sobotka/)).
 
@@ -60,7 +63,7 @@ As mentioned above, each new release comes with a config containing flim and [Ag
 
 I recommend you take a look at the Filmic and the AgX configs. [Troy](https://github.com/sobotka/) is a very respectful and experienced person in this area, and I've learned a lot from him, even while making flim. Feel free to also check out their [IMDb](https://www.imdb.com/name/nm0811888/) page, and their blog, [The Hitchhiker's Guide to Digital Colour](https://hg2dc.com/).
 
-## Scripts
+# Scripts
 
 The code is structured in the following way:
 
@@ -80,7 +83,7 @@ Here are the external libraries required to run the scripts:
  
  - [Joblib](https://joblib.readthedocs.io/en/latest)
 
-## Using the LUTs
+# Using the LUTs
 
 First, a few notes:
 
@@ -158,7 +161,7 @@ displays:
 # -------------------------------------------------
 ```
 
-### Non-OCIO Guide
+## Non-OCIO Guide
 
 After reading the explanations above, you should be able to replicate the transforms fairly easily in order to use flim's 3D LUTs in your own pipeline without OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
 
@@ -181,17 +184,17 @@ out = lut.sample(TRILINEAR, col)
 
 ![3D LUT Visualization](images/3d_lut_vis.png)
 
-## LUT Compression
+# LUT Compression
 
 As you saw above, flim uses logarithmic compression to fit an extremely large range of linear values without losing too much precision. The method is very simple. You take the log2 of your RGB values and map them from a large range (for example [-10, +10]) to the [0, 1] range. You can also add a tiny offset to the RGB values before taking the log2, in order to preserve tiny values all the way down to 0.
 
-## Shadertoy
+# Shadertoy
 
 I made a GLSL port of flim on Shadertoy, [check it out here!](https://www.shadertoy.com/view/dd2yDz)
 
 ![image](https://github.com/bean-mhm/flim/assets/98428255/28b48ad5-5fc0-41ad-a6dc-7e4406478322)
 
-## Useful Links
+# Useful Links
 
 - [The Hitchhiker's Guide to Digital Colour - Troy Sobotka](https://hg2dc.com/)
 - [CG Cinematography - Christophe Brejon](https://chrisbrejon.com/cg-cinematography/)
