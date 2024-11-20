@@ -1,13 +1,11 @@
 ﻿# 🎞️ flim - Filmic Color Transform
 
-# Introduction
-
 **flim is a film emulation transform** that can be used for:
 
-1. Displaying Digital Open-Domain (HDR) Images
-2. Color Grading
-3. Post-Processing in Video Games and Shaders ("tone-mapping")
-4. Display-View Transform in Video Editing
+1. Display-View Transforms in 3D Rendering and Video Editing
+2. Mapping Linear Open-Domain (HDR) Images to the 0-1 Range
+3. Color Grading
+4. Post-Processing in Video Games and Shaders ("tone-mapping")
 
 flim comes with 2 presets, but you can add your own presets with their custom parameters!
   - **default**: The default preset provides a generic look that works well on most images.
@@ -17,7 +15,7 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
 
 # grace
 
-[grace](https://github.com/bean-mhm/grace) is a generic [OpenColorIO](https://opencolorio.org/) config I've made which contains the latest version of flim and its presets, along with other useful elements. **I suggest you use grace instead of the test config that comes with flim's releases.**
+[grace](https://github.com/bean-mhm/grace) is a generic [OpenColorIO](https://opencolorio.org/) config I've made which contains the latest version of flim and its presets, along with other useful elements. **I suggest you use grace instead of the test OCIO config that comes with flim's releases.**
 
 # Eye Candy
 
@@ -94,6 +92,7 @@ First, a few notes:
 If you **don't** want to:
 1. Use the test OCIO configs that come with flim's releases,
 2. Use OCIO at all,
+
 You can use the information below to manually use flim's 3D LUTs.
 
 If `main.py` runs successfully, you should see files named like `flim_X.spi3d` in the same directory. Alternatively, you can look up the latest LUTs in the [releases](https://github.com/bean-mhm/flim/releases) section.
