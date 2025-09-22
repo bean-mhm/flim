@@ -1,17 +1,18 @@
 ﻿# 🎞️ flim - Filmic Color Transform
 
-**flim is a film emulation transform** that can be used for:
+**flim (stylized as lowercase) is a film emulation transform** that can be used for:
 
 1. Display-View Transforms in 3D Rendering and Video Editing
 2. Mapping Linear Open-Domain (HDR) Images to the 0-1 Range
 3. Color Grading
 4. Post-Processing in Video Games and Shaders ("tone-mapping")
 
-flim comes with 2 presets, but you can add your own presets with their custom parameters!
+flim comes with 3 presets, but you can add your own in `main.py`!
   - **default**: The default preset provides a generic look that works well on most images.
-  - **silver**: Provides a more artistic, warmer look.
+  - **nostalgia**: A more alive and vibrant look.
+  - **silver**: A more dramatic look.
 
-### [Watch my video on YouTube about how flim works!](https://www.youtube.com/watch?v=okPzA04TLYM)
+## [Watch my video on YouTube about how flim works!](https://www.youtube.com/watch?v=okPzA04TLYM)
 
 # grace
 
@@ -23,7 +24,7 @@ flim comes with 2 presets, but you can add your own presets with their custom pa
 
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
-- Below are some example images gone through flim's different presets (v1.1.0).
+- Below are some example images gone through flim's different presets.
 
 ![13 - SRIC_arri_alexa35 01025 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/94698a01-73a5-49fa-9b9d-0d810f34bc62)
 
@@ -55,11 +56,13 @@ Here's what each new release contains:
 
 # Using the Config
 
-As mentioned above, each new release comes with a config containing flim and [AgX](https://github.com/sobotka/SB2383-Configuration-Generation). If your DCC software supports [OpenColorIO](https://opencolorio.org/) for color management, you should be able to use flim's config. In [Blender](https://www.blender.org/), for example, you can swap the contents of the `colormanagement` folder with the contents of the config you want to use, after making a backup of Blender's default config (the [Filmic](https://sobotka.github.io/filmic-blender/) config, made by the author of AgX, [Troy Sobotka](https://github.com/sobotka/)).
+If your DCC software supports [OpenColorIO](https://opencolorio.org/) for color management, look up how you can switch the OCIO config. In [Blender](https://www.blender.org/), for example, you can swap the contents of the `colormanagement` folder with the contents of the config you want to use, after making a backup of Blender's default config.
 
 > `[Blender Installation Path]/X.X/datafiles/colormanagement`
 
-I recommend you take a look at the Filmic and the AgX configs. [Troy](https://github.com/sobotka/) is a very respectful and experienced person in this area, and I've learned a lot from him, even while making flim. Feel free to also check out their [IMDb](https://www.imdb.com/name/nm0811888/) page, and their blog, [The Hitchhiker's Guide to Digital Colour](https://hg2dc.com/).
+> [!NOTE]
+> The OCIO configs that come with flim's releases are test configs. If you want
+> a better experience, use [grace](https://github.com/bean-mhm/grace).
 
 # Scripts
 
@@ -69,7 +72,8 @@ The code is structured in the following way:
 |---|---|---|
 | main.py | Compiles 3D LUTs for flim | flim.py  |
 | flim.py | Transforms a given linear 3D LUT table | utils.py |
-| utils.py | Contains helper functions | - |
+| utils.py | Contains helper functions | super_sigmoid.py |
+| super_sigmoid.py | A custom sigmoid function | - |
 
 You can add new presets in `main.py`, or play with the film emulation chain in `flim.py`.
 
@@ -87,22 +91,23 @@ First, a few notes:
 
  - flim's 3D LUTs are designed to be used in an [OpenColorIO](https://opencolorio.org/) (OCIO) environment, but depending on your software and environment, you might be able to manually replicate the transforms in your custom pipeline ([See Non-OCIO Guide below](#non-ocio-guide)).
  
- - flim only supports the sRGB display format as of now.
+ - flim only has presets for the sRGB display format as of now. If you want to
+ add a preset that works in another color space, make sure you're using a display
+ device that supports that color space. You can then tweak and find acceptable
+ parameters.
 
-If you **don't** want to:
-1. Use the test OCIO configs that come with flim's releases,
-2. Use OCIO at all,
+# Adding flim to a your OCIO config
 
-You can use the information below to manually use flim's 3D LUTs.
+If you want to add flim to your own custom OCIO config, follow these instructions.
 
 If `main.py` runs successfully, you should see files named like `flim_X.spi3d` in the same directory. Alternatively, you can look up the latest LUTs in the [releases](https://github.com/bean-mhm/flim/releases) section.
 
-The LUT comments contain most of the information you need. The following is an example of the LUT comments (note that this might not match the latest version).
+The LUTs contain comments that explaining how to add them to an OCIO config. The following is an example of the LUT comments (note that this might not match the latest version).
 
 ```
 # -------------------------------------------------
 # 
-# flim v1.1.0 - Filmic Color Transform
+# flim v1.2.0 - Filmic Color Transform
 # 
 # Preset: default
 # URL: None
@@ -110,7 +115,7 @@ The LUT comments contain most of the information you need. The following is an e
 # LUT input is expected to be in Linear BT.709 I-D65 and gone through an AllocationTransform like the following:
 # !<AllocationTransform> {allocation: lg2, vars: [-10, 10, 0.0009765625]}
 # 
-# Output will be in sRGB 2.2.
+# Output will be in sRGB.
 # 
 # Here's how you can add this to an OpenColorIO config:
 ```
@@ -165,7 +170,7 @@ displays:
 After reading the explanations above, you should be able to replicate the transforms fairly easily in order to use flim's 3D LUTs in your own pipeline without OCIO. The following pseudo-code demonstrates the general process to transform a single RGB triplet (note that this might not match the latest version).
 
 ```py
-# Input RGB values (color space: Linear BT.709 I-D65)
+# input RGB values (color space: Linear BT.709 I-D65)
 col = np.array([4.2, 0.23, 0.05])
 
 # RangeTransform
@@ -177,7 +182,7 @@ col += 0.0009765625  # offset by 2 to the power of -10 (lower bound of log2 comp
 col = np.log2(col)
 col = map_range(col, from=[-10, 10], to=[0, 1], clamp=True)
 
-# Sample from the 3D LUT (output color space: sRGB 2.2)
+# sample from the 3D LUT (output color space: sRGB)
 out = lut.sample(TRILINEAR, col)
 ```
 
@@ -191,7 +196,7 @@ As you saw above, flim uses logarithmic compression to fit an extremely large ra
 
 I made a GLSL port of flim on Shadertoy, [check it out here!](https://www.shadertoy.com/view/dd2yDz)
 
-![image](https://github.com/bean-mhm/flim/assets/98428255/28b48ad5-5fc0-41ad-a6dc-7e4406478322)
+![flim on Shadertoy](https://github.com/bean-mhm/flim/assets/98428255/28b48ad5-5fc0-41ad-a6dc-7e4406478322)
 
 # Useful Links
 
