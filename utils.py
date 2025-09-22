@@ -250,7 +250,7 @@ def rgb_develop(
     max_density
 ):
     # exposure
-    inp *= 2**exposure
+    inp *= 2.**exposure
 
     # blue-sensitive layer
     out = rgb_color_layer(

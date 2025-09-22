@@ -83,7 +83,7 @@ def apply_transform(table: np.ndarray, preset: dict):
         backlight_ext
     )
     black_cap = negative_and_print(
-        np.array([0, 0, 0]),
+        np.array([0., 0., 0.]),
         preset,
         backlight_ext
     ) / white_cap
@@ -135,7 +135,7 @@ def apply_transform(table: np.ndarray, preset: dict):
                     )
 
     # OETF: Linear BT.709 I-D65 -> sRGB
-    table = colour.models.oetf_sRGB(table)
+    table = colour.models.eotf_inverse_sRGB(table)
 
     return table
 
