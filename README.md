@@ -20,7 +20,7 @@ flim comes with 3 presets, but you can add your own in `main.py`!
 
 # Eye Candy
 
-- See comparisons between native sRGB, [AgX](https://github.com/sobotka/SB2383-Configuration-Generation), and flim's presets in the [releases](https://github.com/bean-mhm/flim/releases) section.
+- See comparisons between native sRGB, AgX, and flim's presets in the [releases](https://github.com/bean-mhm/flim/releases) section.
 
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
@@ -48,7 +48,7 @@ Here's what each new release contains:
 
  - 3D LUTs for flim
 
- - An [OpenColorIO](https://opencolorio.org/) config containing [AgX](https://github.com/sobotka/SB2383-Configuration-Generation) and flim's presets as view transforms
+ - An [OpenColorIO](https://opencolorio.org/) config containing AgX and flim's presets as view transforms
 
  - Comparisons between flim and other view transforms
 
@@ -203,7 +203,7 @@ I made a GLSL port of flim on Shadertoy, [check it out here!](https://www.shader
 - [The Hitchhiker's Guide to Digital Colour - Troy Sobotka](https://hg2dc.com/)
 - [CG Cinematography - Christophe Brejon](https://chrisbrejon.com/cg-cinematography/)
 - [RealBloom, Physically Accurate Bloom Simulation - Me](https://github.com/bean-mhm/realbloom)
-- [AgX Config Generator - Troy Sobotka](https://github.com/sobotka/SB2383-Configuration-Generation)
+- [Old AgX Config Generator - Troy Sobotka](https://github.com/sobotka/SB2383-Configuration-Generation)
 - [Test Image Collection 1 - Troy Sobotka](https://github.com/sobotka/Testing_Imagery)
 - [Test Image Collection 2 - Troy Sobotka](https://github.com/sobotka/images)
 - [PolyHaven, HDRIs](https://polyhaven.com/hdris)
