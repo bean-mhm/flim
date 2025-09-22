@@ -1,8 +1,8 @@
 """
 
-3D LUT Generator for flim
+3D LUT generator for flim
 
-Repo:
+repo:
 https://github.com/bean-mhm/flim
 
 """
@@ -16,7 +16,7 @@ import time
 from flim import apply_transform
 
 
-version = '1.1.0'
+version = '1.2.0'
 
 
 # Presets
@@ -24,95 +24,140 @@ version = '1.1.0'
 preset_default = {
     'name': 'default',
     'info_url': None,
-    
-    'lut_compress_log2_min': -10,
-    'lut_compress_log2_max': +10,
+
+    'lut_compress_log2_min': -10.,
+    'lut_compress_log2_max': 10.,
     'lut_quantize': 80,
-    
+
     'pre_exposure': 4.3,
-    'pre_formation_filter': np.array([1.0, 1.0, 1.0]),
-    'pre_formation_filter_strength': 0.0,
-    
+    'pre_formation_filter': np.array([1., 1., 1.]),
+    'pre_formation_filter_strength': 1.,
+
     'extended_gamut_red_scale': 1.05,
     'extended_gamut_green_scale': 1.12,
     'extended_gamut_blue_scale': 1.045,
-    'extended_gamut_red_rot': 0.5,
-    'extended_gamut_green_rot': 2.0,
-    'extended_gamut_blue_rot': 0.1,
-    'extended_gamut_red_mul': 1.0,
-    'extended_gamut_green_mul': 1.0,
-    'extended_gamut_blue_mul': 1.0,
-    
-    'sigmoid_log2_min': -10.0,
-    'sigmoid_log2_max': 22.0,
-    'sigmoid_toe_x': 0.44,
-    'sigmoid_toe_y': 0.28,
-    'sigmoid_shoulder_x': 0.591,
-    'sigmoid_shoulder_y': 0.779,
-    
-    'negative_film_exposure': 6.0,
-    'negative_film_density': 5.0,
-    
-    'print_backlight': np.array([1.0, 1.0, 1.0]),
-    'print_film_exposure': 6.0,
+    'extended_gamut_red_rot': .5,
+    'extended_gamut_green_rot': 2.,
+    'extended_gamut_blue_rot': .1,
+    'extended_gamut_red_mul': 1.,
+    'extended_gamut_green_mul': 1.,
+    'extended_gamut_blue_mul': 1.,
+
+    'sigmoid_log2_min': -10.,
+    'sigmoid_log2_max': 22.,
+    'sigmoid_toe_x': .44,
+    'sigmoid_toe_y': .28,
+    'sigmoid_shoulder_x': .591,
+    'sigmoid_shoulder_y': .779,
+
+    'negative_film_exposure': 6.,
+    'negative_film_density': 5.,
+
+    'print_backlight': np.array([1., 1., 1.]),
+    'print_film_exposure': 6.,
     'print_film_density': 27.5,
-    
+
+    'luminance_weights': np.array([.3, .5, .2]),
     'black_point': 'auto',
-    'post_formation_filter': np.array([1.0, 1.0, 1.0]),
-    'post_formation_filter_strength': 0.0,
+    'post_formation_filter': np.array([1., 1., 1.]),
+    'post_formation_filter_strength': 1.,
     'midtone_saturation': 1.02
+}
+
+preset_nostalgia = {
+    'name': 'nostalgia',
+    'info_url': None,
+
+    'lut_compress_log2_min': -10.,
+    'lut_compress_log2_max': 10.,
+    'lut_quantize': 80,
+
+    'pre_exposure': 5.563035,
+    'pre_formation_filter': np.array([1., 1., 1.]),
+    'pre_formation_filter_strength': 1.,
+
+    'extended_gamut_red_scale': 1.05,
+    'extended_gamut_green_scale': 1.12,
+    'extended_gamut_blue_scale': 1.045,
+    'extended_gamut_red_rot': .5,
+    'extended_gamut_green_rot': 2.,
+    'extended_gamut_blue_rot': .1,
+    'extended_gamut_red_mul': 1.1,
+    'extended_gamut_green_mul': 1.,
+    'extended_gamut_blue_mul': 1.2,
+
+    'sigmoid_log2_min': -10.,
+    'sigmoid_log2_max': 23.,
+    'sigmoid_toe_x': .44,
+    'sigmoid_toe_y': .28,
+    'sigmoid_shoulder_x': .591,
+    'sigmoid_shoulder_y': .779,
+
+    'negative_film_exposure': 5.8,
+    'negative_film_density': 5.,
+
+    'print_backlight': np.array([.99, 1.1, 1.035989]),
+    'print_film_exposure': 6.,
+    'print_film_density': 40.,
+
+    'luminance_weights': np.array([.3, .5, .2]),
+    'black_point': -5.,
+    'post_formation_filter': np.array([1., 1., 1.]),
+    'post_formation_filter_strength': 1.,
+    'midtone_saturation': 1.1
 }
 
 preset_silver = {
     'name': 'silver',
     'info_url': None,
-    
-    'lut_compress_log2_min': -10,
-    'lut_compress_log2_max': +10,
+
+    'lut_compress_log2_min': -10.,
+    'lut_compress_log2_max': 10.,
     'lut_quantize': 80,
-    
+
     'pre_exposure': 3.9,
-    'pre_formation_filter': np.array([0.0, 0.5, 1.0]),
-    'pre_formation_filter_strength': 0.05,
-    
+    'pre_formation_filter': np.array([0., .5, 1.]),
+    'pre_formation_filter_strength': .05,
+
     'extended_gamut_red_scale': 1.05,
     'extended_gamut_green_scale': 1.12,
     'extended_gamut_blue_scale': 1.045,
-    'extended_gamut_red_rot': 0.5,
-    'extended_gamut_green_rot': 2.0,
-    'extended_gamut_blue_rot': 0.1,
-    'extended_gamut_red_mul': 1.0,
-    'extended_gamut_green_mul': 1.0,
+    'extended_gamut_red_rot': .5,
+    'extended_gamut_green_rot': 2.,
+    'extended_gamut_blue_rot': .1,
+    'extended_gamut_red_mul': 1.,
+    'extended_gamut_green_mul': 1.,
     'extended_gamut_blue_mul': 1.06,
-    
-    'sigmoid_log2_min': -10.0,
-    'sigmoid_log2_max': 22.0,
-    'sigmoid_toe_x': 0.44,
-    'sigmoid_toe_y': 0.28,
-    'sigmoid_shoulder_x': 0.591,
-    'sigmoid_shoulder_y': 0.779,
-    
+
+    'sigmoid_log2_min': -10.,
+    'sigmoid_log2_max': 22.,
+    'sigmoid_toe_x': .44,
+    'sigmoid_toe_y': .28,
+    'sigmoid_shoulder_x': .591,
+    'sigmoid_shoulder_y': .779,
+
     'negative_film_exposure': 4.7,
-    'negative_film_density': 7.0,
-    
-    'print_backlight': np.array([0.9992, 0.99, 1.0]),
+    'negative_film_density': 7.,
+
+    'print_backlight': np.array([.9992, .99, 1.]),
     'print_film_exposure': 4.7,
-    'print_film_density': 30.0,
-    
-    'black_point': 0.5,
-    'post_formation_filter': np.array([1.0, 1.0, 0.0]),
-    'post_formation_filter_strength': 0.04,
-    'midtone_saturation': 1.0
+    'print_film_density': 30.,
+
+    'luminance_weights': np.array([.3, .5, .2]),
+    'black_point': .5,
+    'post_formation_filter': np.array([1., 1., 0.]),
+    'post_formation_filter_strength': .04,
+    'midtone_saturation': 1.
 }
 
-presets_to_compile = [preset_default, preset_silver]
+presets_to_compile = [preset_default, preset_nostalgia, preset_silver]
 
 
-# Compile the presets to 3D LUT files
+# compile the presets to 3D LUT files
 for preset in presets_to_compile:
     preset['name'] = preset['name'].strip().replace(' ', '_')
     lut_name = f'flim_{preset["name"]}'
-    
+
     ocio_view_name = f"flim ({preset['name']})"
     ocio_allocation_vars = f'vars: [{preset["lut_compress_log2_min"]}, {preset["lut_compress_log2_max"]}, {2**preset["lut_compress_log2_min"]}]'
     ocio_guide_comments = \
@@ -162,9 +207,9 @@ for preset in presets_to_compile:
         'LUT input is expected to be in Linear BT.709 I-D65 and gone through an AllocationTransform like the following:',
         f'!<AllocationTransform> {{allocation: lg2, {ocio_allocation_vars}}}',
         '',
-        'Output will be in sRGB 2.2.',
+        'Output will be in sRGB.',
         ''] + \
-        ocio_guide_comments.splitlines() + [\
+        ocio_guide_comments.splitlines() + [
         '',
         'Repo:',
         'https://github.com/bean-mhm/flim',
@@ -174,13 +219,13 @@ for preset in presets_to_compile:
         '',
         '-------------------------------------------------'
     ]
-    
-    print(f'Compiling "{preset["name"]}" preset')
-    
+
+    print(f'compiling "{preset["name"]}" preset')
+
     t_start = time.time()
-    
-    # Make a linear 3D LUT
-    print('Making a linear 3D LUT...')
+
+    # make a linear 3D LUT
+    print('making a linear 3D LUT...')
     lut = colour.LUT3D(
         table=colour.LUT3D.linear_table(preset['lut_quantize']),
         name='flim',
@@ -188,13 +233,13 @@ for preset in presets_to_compile:
         size=preset['lut_quantize'],
         comments=lut_comments
     )
-    
-    # Apply transform on the LUT table
-    print('Applying transform on the LUT table...')
+
+    # apply transform on the LUT table
+    print('transforming the LUT table...')
     lut.table = apply_transform(lut.table, preset)
 
-    # Write the LUT
-    print('Writing the LUT...')
+    # write the LUT
+    print('writing the LUT...')
     script_dir = os.path.realpath(os.path.dirname(__file__))
     colour.write_LUT(
         LUT=lut,
@@ -204,5 +249,5 @@ for preset in presets_to_compile:
     )
 
     t_end = time.time()
-    
+
     print(f'"{preset["name"]}" preset compiled in {t_end - t_start:.1f} s.\n')

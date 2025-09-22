@@ -2,10 +2,10 @@
 
 flim - Filmic Color Transform
 
-Input Color Space:   Linear BT.709 I-D65
-Output Color Space:  sRGB 2.2
+input color space: Linear BT.709 I-D65
+output color space: sRGB
 
-Repo:
+repo:
 https://github.com/bean-mhm/flim
 
 """
@@ -18,44 +18,48 @@ import joblib
 from utils import *
 
 
-# Use parallel processing?
+# use parallel processing?
 parallel = True
 
-# Print the current indices while processing? (slow)
+# print the current indices while processing? (slow)
 print_indices = False
 
 
-# Transform a 3D LUT
+# transform a 3D LUT
 def apply_transform(table: np.ndarray, preset: dict):
     if len(table.shape) != 4:
-        raise Exception('table must have 4 dimensions (3 for xyz, 1 for the color channels)')
-    
+        raise Exception(
+            'table must have 4 dimensions (3 for xyz, 1 for the color channels)'
+        )
+
     if table.shape[3] != 3:
         raise Exception('the fourth axis must have a size of 3 (RGB)')
-    
-    # LUT Decompression: Map Range
+
+    # LUT decompression: map range
     table = colour.algebra.linear_conversion(
         table,
-        np.array([0.0, 1.0]),
-        np.array([preset['lut_compress_log2_min'], preset['lut_compress_log2_max']])
+        np.array([0., 1.]),
+        np.array([
+            preset['lut_compress_log2_min'],
+            preset['lut_compress_log2_max']
+        ])
     )
-    
-    # LUT Decompression: Exponent
+
+    # LUT decompression: exponent
     colour.algebra.set_spow_enable(True)
-    table = np.power(2.0, table)
-    
-    # LUT Decompression: Black Offset
-    offset = (2.0**preset['lut_compress_log2_min'])
-    table -= offset
-    
-    # Eliminate negative values (useless)
-    table = np.maximum(table, 0.0)
-    
-    # Pre-Exposure
-    table *= (2**preset['pre_exposure'])
-    
-    # Gamut Extension Matrix (Linear BT.709)
-    extend_mat = flim_gamut_extension_mat(
+    table = np.power(2., table)
+
+    # LUT decompression: offset
+    table -= 2.**preset['lut_compress_log2_min']
+
+    # eliminate negative values
+    table = np.maximum(table, 0.)
+
+    # pre-exposure
+    table *= 2**preset['pre_exposure']
+
+    # gamut extension matrix
+    extend_mat = gamut_extension_mat(
         preset['extended_gamut_red_scale'],
         preset['extended_gamut_green_scale'],
         preset['extended_gamut_blue_scale'],
@@ -67,24 +71,31 @@ def apply_transform(table: np.ndarray, preset: dict):
         preset['extended_gamut_blue_mul']
     )
     extend_mat_inv = np.linalg.inv(extend_mat)
-    
-    # Backlight (extended gamut)
+
+    # backlight in the extended gamut
     backlight_ext = np.matmul(extend_mat, preset['print_backlight'])
-    
-    # Upper and lower limits in the print
-    big = 10_000_000.0
-    white_cap = negative_and_print(np.array([big, big, big]), preset, backlight_ext)
-    black_cap = negative_and_print(np.array([0, 0, 0]), preset, backlight_ext)
-    black_cap /= white_cap
-    
-    # Apply element-wise transform (calls transform_rgb)
+
+    # upper and lower limits in the print (in the extended gamut!)
+    big = 10_000_000.
+    white_cap = negative_and_print(
+        np.array([big, big, big]),
+        preset,
+        backlight_ext
+    )
+    black_cap = negative_and_print(
+        np.array([0, 0, 0]),
+        preset,
+        backlight_ext
+    ) / white_cap
+
+    # element-wise transform (calls transform_rgb)
     if parallel:
-        print('Starting parallel element-wise transform...')
-        
+        print('starting parallel element-wise transform...')
+
         num_points = table.shape[0] * table.shape[1] * table.shape[2]
         stride_y = table.shape[0]
         stride_z = table.shape[0] * table.shape[1]
-        
+
         results = joblib.Parallel(n_jobs=8)(
             joblib.delayed(run_parallel)(
                 table,
@@ -94,19 +105,20 @@ def apply_transform(table: np.ndarray, preset: dict):
                 extend_mat_inv,
                 white_cap,
                 black_cap,
-                backlight_ext)
+                backlight_ext
+            )
             for i in range(num_points)
         )
-    
-        # Arrange the results
-        print('Arranging the results...')
+
+        # arrange the results
+        print('arranging the results...')
         for z in range(table.shape[2]):
             for y in range(table.shape[1]):
                 for x in range(table.shape[0]):
                     index = x + (y * stride_y) + (z * stride_z)
                     table[x, y, z] = results[index]
     else:
-        print('Starting serial element-wise transform...')
+        print('starting serial element-wise transform...')
         for z in range(table.shape[2]):
             for y in range(table.shape[1]):
                 if print_indices:
@@ -121,20 +133,37 @@ def apply_transform(table: np.ndarray, preset: dict):
                         black_cap,
                         backlight_ext
                     )
-    
-    # OETF (Gamma 2.2)
-    table = colour.algebra.spow(table, 1.0 / 2.2)
-    
+
+    # OETF: Linear BT.709 I-D65 -> sRGB
+    table = colour.models.oetf_sRGB(table)
+
     return table
 
 
-# Calls transform_rgb
-def run_parallel(table, indices, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap, backlight_ext):
-    result = transform_rgb(table[indices], preset, extend_mat, extend_mat_inv, white_cap, black_cap, backlight_ext)
-    
+# calls transform_rgb
+def run_parallel(
+        table,
+        indices,
+        preset: dict,
+        extend_mat,
+        extend_mat_inv,
+        white_cap,
+        black_cap,
+        backlight_ext
+):
+    result = transform_rgb(
+        table[indices],
+        preset,
+        extend_mat,
+        extend_mat_inv,
+        white_cap,
+        black_cap,
+        backlight_ext
+    )
+
     if print_indices:
         print(f'{indices} done')
-    
+
     return result
 
 
@@ -147,9 +176,9 @@ def negative_and_print(inp, preset: dict, backlight_ext):
         preset['sigmoid_shoulder_x'],
         preset['sigmoid_shoulder_y']
     ])
-    
-    # Develop Negative
-    inp = flim_rgb_develop(
+
+    # develop negative
+    inp = rgb_develop(
         inp,
         preset['negative_film_exposure'],
         log2_min,
@@ -157,12 +186,12 @@ def negative_and_print(inp, preset: dict, backlight_ext):
         sigmoid_points,
         preset['negative_film_density']
     )
-    
-    # Backlight
+
+    # backlight
     inp = inp * backlight_ext
-    
-    # Develop Print
-    inp = flim_rgb_develop(
+
+    # develop print
+    inp = rgb_develop(
         inp,
         preset['print_film_exposure'],
         log2_min,
@@ -174,43 +203,70 @@ def negative_and_print(inp, preset: dict, backlight_ext):
     return inp
 
 
-# Transform a single RGB triplet
-# You should never directly call this function.
-def transform_rgb(inp, preset: dict, extend_mat, extend_mat_inv, white_cap, black_cap, backlight_ext):
-    # Pre-Formation Filter
-    inp = lerp(inp, inp * preset['pre_formation_filter'], preset['pre_formation_filter_strength'])
-    
-    # Convert to extended gamut
+# transform a single RGB triplet (you should never directly call this function)
+def transform_rgb(
+    inp,
+    preset: dict,
+    extend_mat,
+    extend_mat_inv,
+    white_cap,
+    black_cap,
+    backlight_ext
+):
+    luminance_weights = preset['luminance_weights']
+    luminance_weights /= np.dot(luminance_weights, np.array([1., 1., 1.]))
+
+    # pre-formation filter
+    inp *= lerp(
+        np.array([1.0, 1.0, 1.0]),
+        preset['pre_formation_filter'],
+        preset['pre_formation_filter_strength']
+    )
+
+    # convert to the extended gamut
     inp = np.matmul(extend_mat, inp)
-    
-    # Negative & Print
+
+    # develop negative and print
     inp = negative_and_print(inp, preset, backlight_ext)
-    
-    # Convert from extended gamut
-    inp = np.matmul(extend_mat_inv, inp)
-    
-    # Eliminate negative values
-    inp = np.maximum(inp, 0.0)
-    
-    # White cap
+
+    # white cap
     inp /= white_cap
-    
-    # Black cap
+
+    # black cap
     if preset['black_point'] in ['Auto', 'auto', '', None]:
-        inp = rgb_uniform_offset(inp, rgb_avg(black_cap) * 1000.0, 0.0)
+        inp = rgb_uniform_offset(
+            inp,
+            np.dot(black_cap, luminance_weights),
+            0.,
+            luminance_weights
+        )
     else:
-        inp = rgb_uniform_offset(inp, preset['black_point'], 0.0)
-    
-    # Post-Formation Filter
-    inp = lerp(inp, inp * preset['post_formation_filter'], preset['post_formation_filter_strength'])
-    
-    # Clip
-    inp = np.clip(inp, 0, 1)
-    
-    # Midtone Saturation
-    mono = rgb_avg(inp)
-    mix = map_range_clamp(mono, 0.05, 0.5, 0.0, 1.0) if mono <= 0.5 else map_range_clamp(mono, 0.5, 0.95, 1.0, 0.0)
-    inp = lerp(inp, blender_hue_sat(inp, 0.5, preset['midtone_saturation'], 1.0), mix)
-    
-    # Clip and return
-    return np.clip(inp, 0, 1)
+        inp = rgb_uniform_offset(
+            inp,
+            preset['black_point'] / 1000.,
+            0.,
+            luminance_weights
+        )
+
+    # convert from the extended gamut and clip out-of-gamut triplets
+    inp = np.matmul(extend_mat_inv, inp)
+    inp = np.maximum(inp, 0.)
+
+    # post-formation filter
+    inp = lerp(inp, inp * preset['post_formation_filter'],
+               preset['post_formation_filter_strength'])
+
+    # clip
+    inp = np.clip(inp, 0., 1.)
+
+    # midtone saturation
+    mono = np.dot(inp, luminance_weights)
+    midtone_fac = max(1. - (abs(mono - .5) / .45), 0.)
+    inp = lerp(
+        inp,
+        rgb_adjust_hsv(inp, .5, preset['midtone_saturation'], 1.),
+        midtone_fac
+    )
+
+    # clip and return
+    return np.clip(inp, 0., 1.)
