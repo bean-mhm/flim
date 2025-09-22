@@ -25,22 +25,22 @@ flim comes with 3 presets, but you can add your own in `main.py`!
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
 - Below are some example images gone through flim's different presets.
+- 
+![13 - SRIC_arri_alexa35 01025 - 3 flim (nostalgia)](https://github.com/user-attachments/assets/eb97242c-8f04-4adf-afb0-c4ce294b21e5)
 
-![13 - SRIC_arri_alexa35 01025 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/94698a01-73a5-49fa-9b9d-0d810f34bc62)
+![14 - SRIC_arri_alexa35 01033 - 2 flim (default)](https://github.com/user-attachments/assets/e5fdd7b5-033f-4d6d-82c3-1e64c79098ea)
 
-![14 - SRIC_arri_alexa35 01033 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/612d7ee6-632c-43e3-af00-100237256a26)
+![46 - blue_bar_709 - 2 flim (default)](https://github.com/user-attachments/assets/1b670a64-e291-435f-93f1-69b1c9ba664a)
 
-![46 - blue_bar_709 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/d9ae7f39-452f-4ade-97fc-2d9506e2339b)
+![26 - SRIC_hdm-vmlab-hdr 01032 - 4 flim (silver)](https://github.com/user-attachments/assets/5955f971-4c4b-44e6-845a-9644e481f3fa)
 
-![26 - SRIC_hdm-vmlab-hdr 01032 - 3 flim (silver)](https://github.com/bean-mhm/flim/assets/98428255/fc62b4fe-f825-434e-bd45-e908acc3a0c8)
+![32 - SRIC_red 01004 - 2 flim (default)](https://github.com/user-attachments/assets/a9cc8bcf-175b-47d3-89f9-8ea6a72a2662)
 
-![32 - SRIC_red 01004 - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/c7daf7b0-5b59-462b-8673-6d557246d1bd)
+![35 - SRIC_red 01006 - 4 flim (silver)](https://github.com/user-attachments/assets/6c4ae109-d024-4525-9580-d56dadec23b3)
 
-![35 - SRIC_red 01006 - 3 flim (silver)](https://github.com/bean-mhm/flim/assets/98428255/431769b9-0345-41bd-a6a3-0956b9c5a1d7)
+![43 - pretville_street_4k - 4 flim (silver)](https://github.com/user-attachments/assets/ab6c55af-9f11-4ee4-995c-8ace158b6694)
 
-![43 - pretville_street_4k - 3 flim (silver)](https://github.com/bean-mhm/flim/assets/98428255/e85050ae-99c4-4a01-b750-aa1b46091bfd)
-
-![55 - lakeside_2k - 2 flim (default)](https://github.com/bean-mhm/flim/assets/98428255/2a8730fa-6937-4c16-9c4d-bf1f964dc059)
+![55 - lakeside_2k - 2 flim (default)](https://github.com/user-attachments/assets/a557ebdf-e4cb-4842-ad25-e219b9997749)
 
 # Releases
 
