@@ -1,6 +1,8 @@
 ocio/
 *.spi3d
 
+/.vscode/**
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
