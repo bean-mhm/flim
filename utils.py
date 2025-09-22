@@ -169,8 +169,8 @@ def rgb_min(inp):
     return min(min(inp[0], inp[1]), inp[2])
 
 
-def rgb_uniform_offset(inp, black_point, white_point, luminance_weights):
-    mono = np.dot(inp, luminance_weights)
+def rgb_uniform_offset(inp, black_point, white_point, luminance_weights_norm):
+    mono = np.dot(inp, luminance_weights_norm)
 
     # avoid division by zero
     if abs(mono) < .0001:

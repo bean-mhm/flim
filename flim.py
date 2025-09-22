@@ -214,11 +214,12 @@ def transform_rgb(
     backlight_ext
 ):
     luminance_weights = preset['luminance_weights']
-    luminance_weights /= np.dot(luminance_weights, np.array([1., 1., 1.]))
+    luminance_weights_norm = \
+        luminance_weights / np.dot(luminance_weights, np.array([1., 1., 1.]))
 
     # pre-formation filter
-    inp *= lerp(
-        np.array([1.0, 1.0, 1.0]),
+    inp = inp * lerp(
+        np.array([1., 1., 1.]),
         preset['pre_formation_filter'],
         preset['pre_formation_filter_strength']
     )
@@ -236,16 +237,16 @@ def transform_rgb(
     if preset['black_point'] in ['Auto', 'auto', '', None]:
         inp = rgb_uniform_offset(
             inp,
-            np.dot(black_cap, luminance_weights),
+            np.dot(black_cap, luminance_weights_norm),
             0.,
-            luminance_weights
+            luminance_weights_norm
         )
     else:
         inp = rgb_uniform_offset(
             inp,
             preset['black_point'] / 1000.,
             0.,
-            luminance_weights
+            luminance_weights_norm
         )
 
     # convert from the extended gamut and clip out-of-gamut triplets
@@ -253,14 +254,17 @@ def transform_rgb(
     inp = np.maximum(inp, 0.)
 
     # post-formation filter
-    inp = lerp(inp, inp * preset['post_formation_filter'],
-               preset['post_formation_filter_strength'])
+    inp = inp * lerp(
+        np.array([1., 1., 1.]),
+        preset['post_formation_filter'],
+        preset['post_formation_filter_strength']
+    )
 
     # clip
     inp = np.clip(inp, 0., 1.)
 
     # midtone saturation
-    mono = np.dot(inp, luminance_weights)
+    mono = np.dot(inp, luminance_weights_norm)
     midtone_fac = max(1. - (abs(mono - .5) / .45), 0.)
     inp = lerp(
         inp,
