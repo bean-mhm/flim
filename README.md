@@ -21,7 +21,11 @@ flim comes with 3 presets, but you can add your own in `main.py`!
 
 # grace
 
-[grace](https://github.com/bean-mhm/grace) is a generic [OpenColorIO](https://opencolorio.org/) config I've made which contains the latest version of flim and its presets, along with other useful elements. **I suggest you use grace instead of the test OCIO config that comes with flim's releases.**
+[grace](https://github.com/bean-mhm/grace) is a modified version of
+[Blender 5.0's](https://www.blender.org/) default
+[OpenColorIO](https://opencolorio.org/)
+config that adds [flim](https://github.com/bean-mhm/flim) as a view transform.
+**I suggest you use grace instead of the test OCIO config that comes with flim's releases.**
 
 # Eye Candy
 
