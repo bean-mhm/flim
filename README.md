@@ -34,7 +34,7 @@ config that adds [flim](https://github.com/bean-mhm/flim) as a view transform.
 - You can find links to collections of OpenEXR image files for testing in [Useful Links](#useful-links).
 
 - Below are some example images gone through flim's different presets.
-- 
+
 ![13 - SRIC_arri_alexa35 01025 - 3 flim (nostalgia)](https://github.com/user-attachments/assets/eb97242c-8f04-4adf-afb0-c4ce294b21e5)
 
 ![14 - SRIC_arri_alexa35 01033 - 2 flim (default)](https://github.com/user-attachments/assets/e5fdd7b5-033f-4d6d-82c3-1e64c79098ea)
